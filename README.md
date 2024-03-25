@@ -1,6 +1,6 @@
-### 하나금융TI 교육 정리 노트
+## 하나금융TI 교육 정리 노트
 
-#### JAVA
+### JAVA 2024.03.22 ~
 - kr.co.kopo.classEx: 수업 예제 정리
 - kr.co.kopo.assignment: 과제 정리
 - 목차
