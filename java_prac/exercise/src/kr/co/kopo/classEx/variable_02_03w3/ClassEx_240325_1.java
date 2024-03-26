@@ -1,4 +1,4 @@
-package kr.co.kopo.classEx.variable_03w3;
+package kr.co.kopo.classEx.variable_02_03w3;
 
 import java.util.*;
 

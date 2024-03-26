@@ -1,4 +1,4 @@
-package kr.co.kopo.classEx.loop_03w4;
+package kr.co.kopo.classEx.loop_04_03w4;
 
 import java.io.*;
 import java.util.*;

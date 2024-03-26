@@ -1,4 +1,4 @@
-package kr.co.kopo.classEx.operator_03w4;
+package kr.co.kopo.classEx.operator_03_03w4;
 import java.util.*;
 import java.io.*;
 
