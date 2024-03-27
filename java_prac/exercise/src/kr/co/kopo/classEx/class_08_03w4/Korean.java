@@ -5,16 +5,23 @@ public class Korean extends Human{
     String location;
     String job;
     int age;
+    final String hometown = "Seoul";
     Korean(){
+        this("Professor", 55, "Busan","Female");
         this.job = "Professor";
         this.age = 55;
-        this("Professor", 55, "Busan","Female");
+
     }
     Korean(String job, int age, String location, String sex){
         this.job = job;
         this.location = location;
         this.age = age;
         this.sex = sex;
+
+    }
+    static final double EARTH_SURFACE_AREA;
+    static {
+        EARTH_SURFACE_AREA=4;
     }
 
 }
