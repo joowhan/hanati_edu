@@ -51,15 +51,6 @@ public class StudentManager {
                     studentList.add(student);
                     System.out.println("학생을 추가하였습니다.");
                 }
-//                if(studentList.contains(student)){
-//                    System.out.println("이미 존재하는 학생입니다.");
-//                    // 객체 null
-//                    student = null;
-//                }
-//                else{
-//                    studentList.add(student);
-//                    System.out.println("학생을 추가하였습니다.");
-//                }
 
             }
             // 학생 목록
@@ -72,6 +63,8 @@ public class StudentManager {
                 }
                 System.out.println("------------------------------------------------");
             }
+
+            //학생 수정
             else if(inputData==3){
                 System.out.println("학생 수정");
                 System.out.println("--------------------");
@@ -106,6 +99,8 @@ public class StudentManager {
                 }
 
             }
+
+            //학생 삭제
             else if(inputData==4){
                 System.out.println("학생 삭제");
                 System.out.println("--------------------");
@@ -126,7 +121,7 @@ public class StudentManager {
 
 
             }
-
+            //시스템 종료
             else if(inputData==5){
                 System.out.println("시스템 종료");
                 break;

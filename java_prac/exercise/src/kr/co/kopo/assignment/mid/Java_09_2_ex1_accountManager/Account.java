@@ -11,6 +11,7 @@ public class Account {
         this.money = money;
     }
 
+    /*getter & setter*/
     public String getAccountID() {
         return accountID;
     }
@@ -35,6 +36,7 @@ public class Account {
         this.money = money;
     }
 
+    //입출력
     public void deposit(int money){
         this.money += money;
     }
@@ -44,5 +46,14 @@ public class Account {
         }
         this.money-=money;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "accountID='" + accountID + '\'' +
+                ", name='" + name + '\'' +
+                ", money=" + money +
+                '}';
     }
 }
