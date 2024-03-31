@@ -26,7 +26,7 @@ public class BoardEx {
                 //2. 종료
                 //데이터 목록을 실제 파일로 저장
                 System.out.println("--------------------");
-                if(storedData()){
+                if(boardCrud.writeCSV()){
                     System.out.println("시스템을 종료합니다.");
                     break;
                 }
@@ -44,9 +44,5 @@ public class BoardEx {
 
     }
 
-
-    public static boolean storedData(){
-        return true;
-    }
 
 }

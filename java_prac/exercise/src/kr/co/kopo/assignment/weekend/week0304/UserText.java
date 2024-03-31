@@ -90,13 +90,13 @@ public class UserText {
 
     @Override
     public String toString() {
-        return "UserText{" +
-                "idx=" + idx +
-                ", title='" + title + '\'' +
-                ", writer='" + writer + '\'' +
-                ", date='" + date + '\'' +
-                ", views=" + views +
-                ", secret=" + secret +
-                '}';
+        return
+                "글 번호: " + idx +"\t"+
+                " 제목: '" + title + '\'' +"\t"+
+                " 작성자: '" + writer + '\'' +"\t"+
+                " 작성일: '" + date + '\''+"\t"+
+                " 조회수: " + views +"\t"+
+                " 비밀글 여부: " + secret
+                ;
     }
 }
