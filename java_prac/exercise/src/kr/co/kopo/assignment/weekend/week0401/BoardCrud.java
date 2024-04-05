@@ -149,7 +149,7 @@ public class BoardCrud implements Crud{
             String sql = "SELECT NB_BOARD, NM_TITLE, NM_CONTENT, NM_WRITER, DA_WRITER "
                     +"FROM TB_BOARD "
                     +"WHERE NB_BOARD = "+ nb_board;
-            System.out.println(sql);
+//            System.out.println(sql);
             pstmt = this.connection.prepareStatement(sql);
             rs = pstmt.executeQuery();
             System.out.println("----------------------------------------------------");
@@ -203,11 +203,36 @@ public class BoardCrud implements Crud{
         }
         return false;
     }
-
+    // 글 작성
     @Override
     public boolean insertPost() {
-        String title;
-        String content;
+
+
+        PreparedStatement pstmt=null;
+
+
+        TbBoard tbBoard = new TbBoard();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("제목: ");
+        tbBoard.setNmTitle(scanner.nextLine());
+
+        System.out.print("작성자: ");
+        tbBoard.setNmWriter(scanner.nextLine());
+
+        System.out.println("작성후 EOF를 입력하세요");
+        System.out.print("글 작성 > ");
+        tbBoard.setNmContent(multiLineStatement(scanner));
+
+
+        try {
+            String sql = "INSERT INTO TB_BOARD(NB_BOARD, NM_TITLE, NM_CONTENT,NM_WRITER, DA_WRITER, CN_HIT,ID_FILE)\n" +
+                    "VALUES(seq_tb_board.nextval, '?','?','?','?','?','?');";
+            pstmt = this.connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         return false;
     }
 
@@ -398,7 +423,17 @@ public class BoardCrud implements Crud{
 ////        };
 ////        return;
 ////    }
-
+    public static String multiLineStatement(Scanner sc) {
+        StringBuilder sb = new StringBuilder(); // 문자열을 누적할 StringBuilder 객체 생성
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            if ("EOF".equals(line)) { // 사용자가 "EOF"를 입력하면 반복을 종료
+                break;
+            }
+            sb.append(line).append("\n"); // 입력받은 줄을 StringBuilder 객체에 추가
+        }
+        return sb.toString(); // 누적된 문자열 반환
+    }
     //비밀번호 일치 여부 확인
     private boolean checkPassword(boolean secret, String password) {
         System.out.println("비밀번호는 영문자(대문자/소문자 1 이상 포함), 숫자 1이상 포함, 5~15자리여야 합니다.");
