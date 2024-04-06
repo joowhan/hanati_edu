@@ -5,14 +5,12 @@ import oracle.jdbc.proxy.annotation.Pre;
 
 import javax.xml.transform.Result;
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -53,10 +51,10 @@ public class BoardCrud implements Crud{
         int docNum;
         List<Integer> nb_boardList = new ArrayList<>();
         try{
-            String sql = new StringBuilder().append("SELECT *").append("FROM TB_BOARD").toString();
-            pstmt = connection.prepareStatement(sql);
-            rs = pstmt.executeQuery();
             while(true){
+                String sql = new StringBuilder().append("SELECT *").append("FROM TB_BOARD").toString();
+                pstmt = connection.prepareStatement(sql);
+                rs = pstmt.executeQuery();
                 System.out.println("-------------------------------------------------");
                 System.out.println("===== 게시판 목록 =====");
                 while(rs.next()){
@@ -209,8 +207,12 @@ public class BoardCrud implements Crud{
 
 
         PreparedStatement pstmt=null;
-
-
+        String isContainFile;
+        String fileName="";
+        String fileExt="";
+        String idFile="";
+        int flag = 0;
+        int rows=0;
         TbBoard tbBoard = new TbBoard();
         Scanner scanner = new Scanner(System.in);
 
@@ -220,20 +222,88 @@ public class BoardCrud implements Crud{
         System.out.print("작성자: ");
         tbBoard.setNmWriter(scanner.nextLine());
 
+        System.out.print("파일 저장하십니까?(Y/N): ");
+
+        isContainFile = scanner.nextLine();
+        if(isContainFile.toUpperCase().equals("N")){
+            tbBoard.setIdFile("NULL");
+            System.out.println("파일을 추가하지 않습니다.");
+        }
+        else{
+            System.out.print("img 폴더에 존재하는 파일명을 입력하세요.");
+            fileName = scanner.nextLine();
+            File dir = new File("./files/");
+            String[] files = dir.list();
+            for(String file: files){
+                if(file.equals(fileName)){
+                    System.out.println(fileName+"을 추가합니다.");
+                    flag = 1;
+                    break;
+                }
+            }
+            if(flag==0){
+
+                System.out.println("파일이 존재하지 않습니다.");
+            }
+        }
         System.out.println("작성후 EOF를 입력하세요");
         System.out.print("글 작성 > ");
         tbBoard.setNmContent(multiLineStatement(scanner));
 
 
+
         try {
             String sql = "INSERT INTO TB_BOARD(NB_BOARD, NM_TITLE, NM_CONTENT,NM_WRITER, DA_WRITER, CN_HIT,ID_FILE)\n" +
-                    "VALUES(seq_tb_board.nextval, '?','?','?','?','?','?');";
+                    "VALUES(seq_tb_board.nextval, ?,?,?,SYSDATE,?,?)";
             pstmt = this.connection.prepareStatement(sql);
-        } catch (SQLException e) {
+            pstmt.setString(1,tbBoard.getNmTitle());
+            pstmt.setString(2,tbBoard.getNmContent());
+            pstmt.setString(3,tbBoard.getNmWriter());
+            pstmt.setInt(4, tbBoard.getCnHit());
+
+            // 파일추가를 했으면 파일도 저장 JOIN으로 추가하기
+            if(flag==1){
+                idFile = UUID.randomUUID().toString().substring(0,20);
+                pstmt.setString(5,idFile);
+            }
+            else{
+                pstmt.setNull(5, Types.VARCHAR);
+            }
+            rows = pstmt.executeUpdate();
+
+            if(flag==1){
+                //tb_content에 실제 파일 추가
+                // 파일ID, 원본 파일명, 저장 파일, 파일 확장자명, 저장 일시, 조회수
+                String sql2 = "INSERT INTO TB_CONTENT(ID_FILE, NM_ORG_FILE, BO_SAVE_FILE, NM_FILE_EXT, DA_SAVE, CN_HIT)"
+                        +"VALUES (?,?,?,?,SYSDATE,?)";
+                pstmt = this.connection.prepareStatement(sql2);
+                pstmt.setString(1,idFile);
+                pstmt.setString(2, fileName);
+                pstmt.setBlob(3, new FileInputStream("./files/"+fileName));
+
+                rows = pstmt.executeUpdate();
+
+                int idx = fileName.lastIndexOf(".");
+                if(idx>0){
+                    fileExt = fileName.substring(idx+1);
+                    System.out.println("파일 확장자: "+fileExt);
+                }
+                pstmt.setString(4, fileExt);
+                pstmt.setInt(5, 0);
+            }
+            return true;
+        } catch (SQLException | FileNotFoundException e) {
             throw new RuntimeException(e);
+        }finally {
+            try{
+                assert pstmt != null;
+                pstmt.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
         }
 
-        return false;
     }
 
     //게시글 작성
@@ -287,16 +357,19 @@ public class BoardCrud implements Crud{
 //
     @Override
     public boolean updatePost() {
+
         return false;
     }
 
     @Override
     public boolean deletePost(int nb_board) {
+
         return false;
     }
 
     @Override
     public boolean deletePost(String[] arr) {
+
         return false;
     }
 //
@@ -433,6 +506,10 @@ public class BoardCrud implements Crud{
             sb.append(line).append("\n"); // 입력받은 줄을 StringBuilder 객체에 추가
         }
         return sb.toString(); // 누적된 문자열 반환
+    }
+    //DB Connection close
+    public void dbClose(){
+        DbConnection.dbUnconnected(this.connection);
     }
     //비밀번호 일치 여부 확인
     private boolean checkPassword(boolean secret, String password) {

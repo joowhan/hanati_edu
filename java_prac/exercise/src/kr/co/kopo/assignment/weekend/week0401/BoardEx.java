@@ -35,6 +35,7 @@ public class BoardEx {
                 System.out.println("--------------------");
 
                 System.out.println("시스템을 종료합니다.");
+                boardCrud.dbClose();
                 break;
 
             }
