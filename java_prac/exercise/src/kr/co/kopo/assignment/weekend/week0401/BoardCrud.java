@@ -20,10 +20,12 @@ import java.util.regex.Pattern;
 
 public class BoardCrud implements Crud{
     Connection connection =null;
+    Scanner scanner = null;
     //객체 생성
     BoardCrud(){
         try{
             this.connection = DbConnection.dbConnected();
+            scanner = new Scanner(System.in);
         } catch (SQLException e) {
             System.out.println("DB 연결에 실패하였습니다.");
             throw new RuntimeException(e);
@@ -141,13 +143,10 @@ public class BoardCrud implements Crud{
 
         try{
 
-//            String sql ="SELECT NB_BOARD, NM_TITLE, NM_CONTENT, NM_WRITER, DA_WRITER "
-//                    +"FROM TB_CONTENT C JOIN TB_BOARD B ON C.ID_FILE=B.ID_FILE"
-//                    +"WHERE NB_BOARD = "+ nb_board;
             String sql = "SELECT NB_BOARD, NM_TITLE, NM_CONTENT, NM_WRITER, DA_WRITER "
                     +"FROM TB_BOARD "
                     +"WHERE NB_BOARD = "+ nb_board;
-//            System.out.println(sql);
+
             pstmt = this.connection.prepareStatement(sql);
             rs = pstmt.executeQuery();
             System.out.println("----------------------------------------------------");
@@ -166,17 +165,14 @@ public class BoardCrud implements Crud{
             System.out.print("선택 > ");
             inputData = scanner.nextInt();
             if(inputData==1){
-                if(updatePost()){
-                    System.out.println("성공적으로 수정 되었습니다.");
-                }
-                else{
-                    System.out.println("수정 실패");
-                }
+                updatePost(nb_board);
+                System.out.println("성공적으로 수정 되었습니다.");
+
             }
             //글 삭제
             else if(inputData==2){
-                //비밀번호 입력
                 deletePost(nb_board);
+                System.out.println("성공적으로 게시글을 삭제했습니다.");
             }
             //메인 메뉴로 이동
             else if(inputData==3){
@@ -205,14 +201,14 @@ public class BoardCrud implements Crud{
     @Override
     public boolean insertPost() {
 
-
         PreparedStatement pstmt=null;
-        String isContainFile;
+        String isFile;
         String fileName="";
         String fileExt="";
         String idFile="";
         int flag = 0;
         int rows=0;
+
         TbBoard tbBoard = new TbBoard();
         Scanner scanner = new Scanner(System.in);
 
@@ -224,32 +220,21 @@ public class BoardCrud implements Crud{
 
         System.out.print("파일 저장하십니까?(Y/N): ");
 
-        isContainFile = scanner.nextLine();
-        if(isContainFile.toUpperCase().equals("N")){
+        isFile = scanner.nextLine();
+        if(isFile.equalsIgnoreCase("N")){
             tbBoard.setIdFile("NULL");
             System.out.println("파일을 추가하지 않습니다.");
         }
         else{
             System.out.print("img 폴더에 존재하는 파일명을 입력하세요.");
             fileName = scanner.nextLine();
-            File dir = new File("./files/");
-            String[] files = dir.list();
-            for(String file: files){
-                if(file.equals(fileName)){
-                    System.out.println(fileName+"을 추가합니다.");
-                    flag = 1;
-                    break;
-                }
-            }
-            if(flag==0){
-
-                System.out.println("파일이 존재하지 않습니다.");
+            if(isFileExist(fileName)){
+                flag = 1;
             }
         }
         System.out.println("작성후 EOF를 입력하세요");
         System.out.print("글 작성 > ");
         tbBoard.setNmContent(multiLineStatement(scanner));
-
 
 
         try {
@@ -261,7 +246,7 @@ public class BoardCrud implements Crud{
             pstmt.setString(3,tbBoard.getNmWriter());
             pstmt.setInt(4, tbBoard.getCnHit());
 
-            // 파일추가를 했으면 파일도 저장 JOIN으로 추가하기
+            // 파일추가를 했으면 파일도 저장
             if(flag==1){
                 idFile = UUID.randomUUID().toString().substring(0,20);
                 pstmt.setString(5,idFile);
@@ -270,6 +255,7 @@ public class BoardCrud implements Crud{
                 pstmt.setNull(5, Types.VARCHAR);
             }
             rows = pstmt.executeUpdate();
+
 
             if(flag==1){
                 //tb_content에 실제 파일 추가
@@ -281,7 +267,7 @@ public class BoardCrud implements Crud{
                 pstmt.setString(2, fileName);
                 pstmt.setBlob(3, new FileInputStream("./files/"+fileName));
 
-                rows = pstmt.executeUpdate();
+
 
                 int idx = fileName.lastIndexOf(".");
                 if(idx>0){
@@ -290,6 +276,7 @@ public class BoardCrud implements Crud{
                 }
                 pstmt.setString(4, fileExt);
                 pstmt.setInt(5, 0);
+                rows = pstmt.executeUpdate();
             }
             return true;
         } catch (SQLException | FileNotFoundException e) {
@@ -355,15 +342,96 @@ public class BoardCrud implements Crud{
 //
 //    }
 //
-    @Override
-    public boolean updatePost() {
 
-        return false;
+    @Override
+    public void updatePost(int nb_board) {
+        PreparedStatement pstmt=null;
+        String isContainFile="";
+        int flag = 0;
+        int rows = 0;
+        String fileExt="";
+        String idFile = null;
+        String fileName= null;
+        Scanner scanner = new Scanner(System.in);
+
+        // 수정할 번호로 update문 실행
+        System.out.print("제목: ");
+        String nmTitle = scanner.nextLine();
+
+        System.out.println("작성후 EOF를 입력하세요");
+        System.out.print("글 작성 > ");
+        String nmContent = multiLineStatement(scanner);
+
+        try{
+            String sql = "UPDATE TB_BOARD SET "
+                    +"NM_TITLE=?, "
+                    +"NM_CONTENT=?,"
+                    +"DA_WRITER=SYSDATE, "
+                    +"CN_HIT =CN_HIT+1"
+                    +"WHERE NB_BOARD="+nb_board;
+            pstmt = this.connection.prepareStatement(sql);
+            pstmt.setString(1,nmTitle);
+            pstmt.setString(2,nmContent);
+
+            rows = pstmt.executeUpdate();
+
+            //파일 업데이트
+            updateFile(nb_board, pstmt);
+
+
+        }catch(SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try{
+                assert pstmt != null;
+                pstmt.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }
     }
 
     @Override
     public boolean deletePost(int nb_board) {
+        int rows = 0;
+        PreparedStatement pstmt=null;
 
+        String sql1 = "DELETE FROM TB_BOARD WHERE NB_BOARD = ?";
+        String sql2 ="DELETE FROM TB_CONTENT " +
+                "WHERE ID_FILE = ( " +
+                "    SELECT ID_FILE " +
+                "    FROM TB_BOARD " +
+                "    WHERE NB_BOARD = ?"+
+                ")";
+        //tb_board 삭제, 이때 파일이 존재한다면 tb_content까지 삭제
+
+
+        try {
+
+
+            // 파일도 있다면
+            if(isPostContainFile(nb_board)){
+                pstmt = connection.prepareStatement(sql2);
+                pstmt.setInt(1, nb_board);
+                rows = pstmt.executeUpdate();
+            }
+            //tb_board 삭제
+            pstmt = connection.prepareStatement(sql1);
+            pstmt.setInt(1, nb_board);
+            rows = pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            try{
+                assert pstmt != null;
+                pstmt.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }
         return false;
     }
 
@@ -429,83 +497,19 @@ public class BoardCrud implements Crud{
 //        System.out.println("성공적으로 삭제 되었습니다!");
 //        System.out.println("--------------------");
 //    }
-//    //목록 읽어오기
-////    public static void readList(BoardCrud boardCrud){
-////        int inputData = 0;
-////        int docNum = 0;
-////        Scanner scanner = new Scanner(System.in);
-////        System.out.println("----------------------------------------------------");
-////        //목록 출력
-////        LinkedHashMap<Integer, UserText> boardList = boardCrud.getBoardList();
-////        if(boardList.size()<1){
-////            System.out.println("작성된 글이 없습니다.");
-////        }
-////        System.out.println("===== 게시판 =====");
-////        System.out.println("----------------------------------------------------");
-////        while(true){
-////            for(Map.Entry<Integer,UserText> entry: boardList.entrySet()){
-////                System.out.println(boardList.get(entry.getKey()).toString());
-////            }
-////            System.out.println("----------------------------------------------------");
-////            System.out.println("===== 게시판 목록 =====");
-////            System.out.println("1. 글 작성 2. 상세 조회 3. 다중 삭제 4. 메인메뉴로 이동");
-////            System.out.print("선택 > ");
-////            inputData = scanner.nextInt();
-////            if(inputData==1){
-////                // 글 작성 -> 새롭게 글 생성
-////                boardCrud.writePost();
-////            }
-////            else if(inputData==2){
-////                // 상세 조회
-////                if(boardList.isEmpty()){
-////                    System.out.println("글이 없습니다. 글을 새로 작성해주세요!");
-////                    continue;
-////                }
-////                System.out.print("조회할 번호를 입력하세요: ");
-////                docNum = scanner.nextInt();
-////                if(boardList.get(docNum) ==null){
-////                    System.out.println("해당 글은 존재하지 않습니다.");
-////                    System.out.println("----------------------------------------------------");
-////                    continue;
-////                }
-////                boardCrud.readPost(boardList.get(docNum), docNum);
-////            }
-////            else if(inputData==3){
-////                // 다중 삭제
-////                if(boardList.isEmpty()){
-////                    System.out.println("글이 없습니다. 글을 새로 작성해주세요!");
-////                    continue;
-////                }
-////                System.out.print("삭제할 글의 idx 번호를 입력해주세요. (띄어써서 입력): ");
-////
-////                Scanner scanner1 = new Scanner(System.in);
-////                String temp = scanner1.nextLine();
-////                String[] arr = temp.split(" ");
-////
-////                boardCrud.deletePost(arr);
-////            }
-////            else if(inputData==4){
-////                // 메인메뉴로 이동
-////                System.out.println("메인 메뉴로 이동합니다.");
-////                break;
-////            }
-////            else{
-////                System.out.println("다시 입력하세요.");
-////                System.out.println("----------------------------------------------------");
-////            }
-////        };
-////        return;
-////    }
+
     public static String multiLineStatement(Scanner sc) {
-        StringBuilder sb = new StringBuilder(); // 문자열을 누적할 StringBuilder 객체 생성
+        StringBuilder sb = new StringBuilder();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
-            if ("EOF".equals(line)) { // 사용자가 "EOF"를 입력하면 반복을 종료
+            // 사용자가 "EOF"를 입력하면 반복을 종료
+            if ("EOF".equals(line)) {
                 break;
             }
-            sb.append(line).append("\n"); // 입력받은 줄을 StringBuilder 객체에 추가
+            // 입력받은 줄을 StringBuilder 객체에 추가
+            sb.append(line).append("\n");
         }
-        return sb.toString(); // 누적된 문자열 반환
+        return sb.toString();
     }
     //DB Connection close
     public void dbClose(){
@@ -528,6 +532,119 @@ public class BoardCrud implements Crud{
             }
         }
         return true;
+    }
+
+    public void updateFile(int nb_board, PreparedStatement pstmt){
+        String idFile = "";
+        String fileName;
+        int flag = 0;
+        int rows = 0;
+        String fileExt = null;
+
+        System.out.print("파일을 업데이트 하십니까?(Y/N): ");
+        String answer = scanner.nextLine();
+
+        //기존 파일 유지
+        if(answer.equalsIgnoreCase("N")){
+            System.out.println("파일을 업데이트 하지 않습니다.");
+        }
+        // 새로운 파일로 업데이트
+        else{
+            idFile = UUID.randomUUID().toString().substring(0,20);
+
+            System.out.print("img 폴더에 존재하는 파일명을 입력하세요.");
+            fileName = scanner.nextLine();
+
+            // file 존재 여부 확인
+            if(!isFileExist(fileName)){
+                return;
+            }
+
+            //TB_BOARD query
+            String sql1 = "UPDATE TB_BOARD SET "
+                    +"ID_FILE=?"
+                    +"WHERE NB_BOARD="+nb_board;
+
+            //TB_CONTENT query
+            String sql2 = "INSERT INTO TB_CONTENT(ID_FILE, NM_ORG_FILE, BO_SAVE_FILE, NM_FILE_EXT, DA_SAVE, CN_HIT)"
+                    +"VALUES (?,?,?,?,SYSDATE,?)";
+            try{
+                //TB_BOARD update -> UPDATE FK
+                pstmt = this.connection.prepareStatement(sql1);
+                pstmt.setString(1, idFile);
+                rows = pstmt.executeUpdate();
+
+
+                int idx = fileName.lastIndexOf(".");
+                if(idx>0){
+                    fileExt = fileName.substring(idx+1);
+                    System.out.println("파일 확장자: "+fileExt);
+                }
+
+                //TB_CONTENT update -> INSERT
+                pstmt = this.connection.prepareStatement(sql2);
+                pstmt.setString(1,idFile);
+                pstmt.setString(2, fileName);
+                pstmt.setBlob(3, new FileInputStream("./files/"+fileName));
+                pstmt.setString(4, fileExt);
+                pstmt.setInt(5, 0);
+
+                rows = pstmt.executeUpdate();
+
+            } catch (SQLException | FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }finally {
+                try{
+                    assert pstmt != null;
+                    pstmt.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+    public boolean isPostContainFile(int nb_board){
+        PreparedStatement pstmt=null;
+        ResultSet rs = null;
+        try{
+            String sql ="SELECT COUNT(ID_FILE) " +
+                    "FROM TB_BOARD " +
+                    "WHERE ID_FILE IS NOT NULL AND NB_BOARD="+nb_board;
+            pstmt = this.connection.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            if(rs.next()){
+                int cnt = rs.getInt(1);
+                if(cnt>0){
+                    return true;
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            try{
+                assert pstmt != null;
+                pstmt.close();
+                rs.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }
+    }
+    public boolean isFileExist(String fileName){
+        File dir = new File("./files/");
+        String[] files = dir.list();
+        for(String file: files){
+            if(file.equals(fileName)){
+                System.out.println(fileName+"을 추가합니다.");
+                return true;
+            }
+        }
+        // 파일이 존재하지 않는다면 return
+        System.out.println("파일이 존재하지 않습니다.");
+        return false;
     }
 
 }

@@ -4,7 +4,7 @@ public interface Crud {
     boolean readTable();
     boolean readPost(int nb_board);
     boolean insertPost();
-    boolean updatePost();
+    void updatePost(int nb_board);
     boolean deletePost(int nb_board);
     boolean deletePost(String[] arr);
 
