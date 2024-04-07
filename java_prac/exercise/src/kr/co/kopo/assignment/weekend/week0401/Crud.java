@@ -1,10 +1,10 @@
 package kr.co.kopo.assignment.weekend.week0401;
 
 public interface Crud {
-    boolean readTable();
-    boolean readPost(int nb_board);
+    void readTable();
+    void readPost(int nb_board);
     boolean insertPost();
-    void updatePost(int nb_board);
+    boolean updatePost(int nb_board);
     boolean deletePost(int nb_board);
     boolean deletePost(String[] arr);
 

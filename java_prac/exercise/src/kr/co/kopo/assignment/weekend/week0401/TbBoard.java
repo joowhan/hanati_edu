@@ -8,7 +8,23 @@ public class TbBoard {
     private String daWrite;
     private int cnHit;
     private String idFile;
+    TbBoard(){}
 
+    TbBoard(String daWrite, String nmTitle, String nmContent, String nmWriter, int cnHit){
+        this.daWrite = daWrite;
+        this.nmTitle = nmTitle;
+        if(nmContent.length()>4000){
+            System.out.println(nmContent.length());
+            this.nmContent = nmContent.substring(0,3999);
+            System.out.println(nmContent.length());
+        }
+        else{
+            this.nmContent = nmContent;
+        }
+
+        this.nmWriter = nmWriter;
+        this.cnHit = cnHit;
+    }
     public int getNbBoard() {
         return nbBoard;
     }

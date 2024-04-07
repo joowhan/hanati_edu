@@ -31,21 +31,10 @@ public class BoardCrud implements Crud{
             throw new RuntimeException(e);
         }
     }
-    //비밀번호 검증
-    public static boolean pwdValidation(String password){
-        Pattern pwdPattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{5,15}$");
-        Matcher pwdMatcher = pwdPattern.matcher(password);
-        if(!pwdMatcher.find()){
-            return false;
-        }
-        return true;
-    }
-
-
 
     // 테이블에 저장된 게시글 정보 불러오기
     @Override
-    public boolean readTable() {
+    public void readTable() {
         ResultSet rs = null;
         PreparedStatement pstmt=null;
         Scanner scanner = new Scanner(System.in);
@@ -54,7 +43,10 @@ public class BoardCrud implements Crud{
         List<Integer> nb_boardList = new ArrayList<>();
         try{
             while(true){
-                String sql = new StringBuilder().append("SELECT *").append("FROM TB_BOARD").toString();
+//                String sql = new StringBuilder().append("SELECT *").append("FROM TB_BOARD").toString();
+                String sql ="SELECT B.NB_BOARD, B.NM_TITLE, B.NM_CONTENT, B.NM_WRITER, B.DA_WRITER, B.CN_HIT, C.NM_ORG_FILE " +
+                        "FROM TB_BOARD B LEFT JOIN TB_CONTENT C ON B.ID_FILE = C.ID_FILE " +
+                        "ORDER BY B.NB_BOARD DESC";
                 pstmt = connection.prepareStatement(sql);
                 rs = pstmt.executeQuery();
                 System.out.println("-------------------------------------------------");
@@ -62,7 +54,8 @@ public class BoardCrud implements Crud{
                 while(rs.next()){
 
                     System.out.println("글 번호 : "+ rs.getInt(1) +" | "+ "제목: "+ rs.getString(2)
-                            +" | "+ "작성자: "+ rs.getString(5) +" | "+ "작성일: "+ rs.getString(6));
+                            +" | "+ "작성자: "+ rs.getString(4) +" | "+ "작성일: "+ rs.getString(5)
+                            +" | "+ "조회수: "+ rs.getInt(6) +" | "+ "파일 존재: "+ rs.getString(7));
                     nb_boardList.add(rs.getInt(1));
                 }
                 System.out.println("-------------------------------------------------");
@@ -72,7 +65,12 @@ public class BoardCrud implements Crud{
 
                 if(inputData==1){
                     // 글 작성 -> 새롭게 글 생성
-                    this.insertPost();
+                    if(this.insertPost()){
+                        System.out.println("글을 성공적으로 저장했습니다.");
+                    }
+                    else{
+                        System.out.println("글 저장에 실패했습니다.");
+                    }
 
                 }
                 else if(inputData==2){
@@ -102,7 +100,14 @@ public class BoardCrud implements Crud{
                     Scanner scanner1 = new Scanner(System.in);
                     String temp = scanner1.nextLine();
                     String[] arr = temp.split(" ");
-                    this.deletePost(arr);
+                    if(this.deletePost(arr)){
+                        System.out.println("다중 삭제 성공");
+                    }
+                    else{
+                        System.out.println("다중 삭제 실패");
+                    }
+
+
                 }
                 else if(inputData==4){
                     // 메인메뉴로 이동
@@ -130,53 +135,71 @@ public class BoardCrud implements Crud{
             }
 
         }
-        return false;
     }
 
     //상세 조회
     @Override
-    public boolean readPost(int nb_board) {
+    public void readPost(int nb_board) {
         ResultSet rs = null;
         PreparedStatement pstmt=null;
         Scanner scanner = new Scanner(System.in);
         int inputData;
 
         try{
-
-            String sql = "SELECT NB_BOARD, NM_TITLE, NM_CONTENT, NM_WRITER, DA_WRITER "
-                    +"FROM TB_BOARD "
-                    +"WHERE NB_BOARD = "+ nb_board;
-
-            pstmt = this.connection.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            System.out.println("----------------------------------------------------");
-            while(rs.next()){
-                System.out.println("글 번호 : "+ rs.getInt(1) +" | "+ "제목: "+ rs.getString(2)
-                        +" | "+ "작성자: "+ rs.getString(4) +" | "+ "작성일: "+ rs.getString(5));
-                System.out.println(rs.getString(3));
-            }
-
             //조회수 증가
             String updateSql = "UPDATE TB_BOARD SET CN_HIT = CN_HIT+1 WHERE NB_BOARD="+nb_board;
             pstmt = this.connection.prepareStatement(updateSql);
             int rows = pstmt.executeUpdate();
+
+            //게시글 조회
+            String sql = "SELECT B.NB_BOARD, B.NM_TITLE, B.NM_CONTENT, B.NM_WRITER, B.DA_WRITER, B.CN_HIT, C.NM_ORG_FILE " +
+                    "FROM TB_BOARD B LEFT JOIN TB_CONTENT C ON B.ID_FILE = C.ID_FILE " +
+                    "WHERE B.NB_BOARD = ? " +
+                    "ORDER BY B.NB_BOARD DESC";
+
+
+            pstmt = this.connection.prepareStatement(sql);
+
+            pstmt.setInt(1, nb_board);
+            rs = pstmt.executeQuery();
+            System.out.println("----------------------------------------------------");
+            while(rs.next()){
+                System.out.println("글 번호 : "+ rs.getInt(1) +" | "+ "제목: "+ rs.getString(2)
+                        +" | "+ "작성자: "+ rs.getString(4) +" | "+ "작성일: "+ rs.getString(5)
+                        +" | "+ "조회수: "+rs.getInt(6)+" | "+ "파일 유무: "+rs.getString(7));
+                System.out.println(rs.getString(3));
+            }
+
+
+
             System.out.println("----------------------------------------------------");
             System.out.println("1. 글 수정 2. 글 삭제 3. 메인메뉴로 이동");
             System.out.print("선택 > ");
             inputData = scanner.nextInt();
             if(inputData==1){
-                updatePost(nb_board);
-                System.out.println("성공적으로 수정 되었습니다.");
+                if(updatePost(nb_board)){
+                    System.out.println("성공적으로 수정 되었습니다.");
+                }
+                else{
+                    System.out.println("수정 실패!");
+                }
+
 
             }
             //글 삭제
             else if(inputData==2){
-                deletePost(nb_board);
-                System.out.println("성공적으로 게시글을 삭제했습니다.");
+                if(deletePost(nb_board)){
+                    System.out.println("성공적으로 게시글을 삭제했습니다.");
+                }
+                else{
+                    System.out.println("게시글 삭제 실패!");
+                }
+
+
             }
             //메인 메뉴로 이동
             else if(inputData==3){
-                return true;
+                return;
             }
             else{
                 System.out.println("잘못 입력하셨습니다.");
@@ -193,9 +216,7 @@ public class BoardCrud implements Crud{
             }catch (SQLException e){
                 e.printStackTrace();
             }
-
         }
-        return false;
     }
     // 글 작성
     @Override
@@ -207,7 +228,8 @@ public class BoardCrud implements Crud{
         String fileExt="";
         String idFile="";
         int flag = 0;
-        int rows=0;
+        int rows1=0;
+        int rows2 =0;
 
         TbBoard tbBoard = new TbBoard();
         Scanner scanner = new Scanner(System.in);
@@ -254,7 +276,7 @@ public class BoardCrud implements Crud{
             else{
                 pstmt.setNull(5, Types.VARCHAR);
             }
-            rows = pstmt.executeUpdate();
+            rows1 = pstmt.executeUpdate();
 
 
             if(flag==1){
@@ -276,9 +298,10 @@ public class BoardCrud implements Crud{
                 }
                 pstmt.setString(4, fileExt);
                 pstmt.setInt(5, 0);
-                rows = pstmt.executeUpdate();
+                rows2 = pstmt.executeUpdate();
             }
-            return true;
+            return (rows1 > 0 && rows2 > 0);
+
         } catch (SQLException | FileNotFoundException e) {
             throw new RuntimeException(e);
         }finally {
@@ -293,58 +316,8 @@ public class BoardCrud implements Crud{
 
     }
 
-    //게시글 작성
-//    public boolean writePost(){
-//        int idx = 0;
-//        int views = 0;
-//        String date;
-//        Scanner scanner = new Scanner(System.in);
-//
-//        System.out.print("제목: ");
-//        String title = scanner.nextLine();
-//
-//        System.out.print("작성자: ");
-//        String writer = scanner.nextLine();
-//
-//
-//        System.out.print("비밀글 여부: (Y/N)  ");
-//        String s = scanner.nextLine();
-//        String password;
-//        boolean secret;
-//        if(s.equals("N")){
-//            secret = false;
-//            password = "0";
-//        }
-//        else{
-//            secret = true;
-//            while(true){
-//                System.out.println("비밀번호는 영문자(대문자/소문자 1 이상 포함), 숫자 1이상 포함, 5~15자리여야 합니다.");
-//                System.out.print("비밀번호 입력: ");
-//                password = scanner.nextLine();
-//                if(pwdValidation(password)) break;
-//                else
-//                    System.out.println("비밀번호 형식이 올바르지 않습니다.");
-//            }
-//
-//
-//        }
-//        System.out.println();
-//        System.out.print("글 작성 > ");
-//        String text = scanner.nextLine();
-//
-//        LocalDate now = LocalDate.now();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-//        date = now.format(formatter);
-//
-//        idx = boardList.lastEntry().getKey()+1;
-//        boardList.put(idx, new UserText(idx, title,writer,date,views,secret,text,password));
-//        System.out.println("성공적으로 글이 저장되었습니다!");
-//
-//    }
-//
-
     @Override
-    public void updatePost(int nb_board) {
+    public boolean updatePost(int nb_board) {
         PreparedStatement pstmt=null;
         String isContainFile="";
         int flag = 0;
@@ -376,8 +349,7 @@ public class BoardCrud implements Crud{
             rows = pstmt.executeUpdate();
 
             //파일 업데이트
-            updateFile(nb_board, pstmt);
-
+            return rows > 0 && updateFile(nb_board, pstmt);
 
         }catch(SQLException e) {
             throw new RuntimeException(e);
@@ -406,9 +378,7 @@ public class BoardCrud implements Crud{
                 ")";
         //tb_board 삭제, 이때 파일이 존재한다면 tb_content까지 삭제
 
-
         try {
-
 
             // 파일도 있다면
             if(isPostContainFile(nb_board)){
@@ -421,6 +391,7 @@ public class BoardCrud implements Crud{
             pstmt.setInt(1, nb_board);
             rows = pstmt.executeUpdate();
 
+            return rows>0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
@@ -432,71 +403,17 @@ public class BoardCrud implements Crud{
             }
 
         }
-        return false;
     }
 
     @Override
     public boolean deletePost(String[] arr) {
-
-        return false;
+        for (String s : arr) {
+            if (!deletePost(Integer.parseInt(s)))
+                return false;
+        }
+        return true;
     }
-//
-//    //게시글 수정
-//    private boolean updatePost(UserText userText){
-//        Scanner scanner = new Scanner(System.in);
-//        String pwd;
-//        // 비밀번호 입력
-//        if(!checkPassword(userText.isSecret(), userText.getPassword())){
-//            return false;
-//        }
-//
-//        System.out.print("수정할 제목을 입력하세요.: ");
-//        String title = scanner.nextLine();
-//        System.out.print("수정할 내용을 입력하세요. : ");
-//        String text = scanner.nextLine();
-//        System.out.println(text);
-//        userText.setTitle(title);
-//        userText.setText(text);
-//
-//        return true;
-//
-//
-//
-//    }
-//    //다중 삭제
-//    private void deletePost(String[] arr){
-//
-//        for(int i=0;i<arr.length;i++){
-//            if(!boardList.keySet().contains(Integer.parseInt(arr[i]))){
-//                System.out.println("----------------------------------------------------");
-//                System.out.println(arr[i]+"는 존재하지 않는 번호입니다."+ boardList.keySet());
-//                System.out.println("----------------------------------------------------");
-//                return;
-//            }
-//            if(boardList.get(Integer.parseInt(arr[i])).isSecret()){
-//                System.out.println("----------------------------------------------------");
-//                System.out.println("비밀글이 포함되어 있습니다. 다중 삭제가 불가능합니다.");
-//                System.out.println("----------------------------------------------------");
-//                return;
-//            }
-//
-//        }
-//        for(int i=0;i<arr.length;i++){
-//            boardList.remove(Integer.parseInt(arr[i]));
-//            System.out.println(arr[i]+"번 게시글을 삭제합니다.");
-//        }
-//        System.out.println("다중 삭제 완료!");
-//        System.out.println("----------------------------------------------------");
-//    }
-//    //상세 조회에서 삭제
-//    private void deletePost(UserText userText, int idx){
-//        if(!checkPassword(userText.isSecret(), userText.getPassword())){
-//            return;
-//        };
-//        boardList.remove(idx);
-//        System.out.println("성공적으로 삭제 되었습니다!");
-//        System.out.println("--------------------");
-//    }
+
 
     public static String multiLineStatement(Scanner sc) {
         StringBuilder sb = new StringBuilder();
@@ -516,29 +433,12 @@ public class BoardCrud implements Crud{
         DbConnection.dbUnconnected(this.connection);
     }
     //비밀번호 일치 여부 확인
-    private boolean checkPassword(boolean secret, String password) {
-        System.out.println("비밀번호는 영문자(대문자/소문자 1 이상 포함), 숫자 1이상 포함, 5~15자리여야 합니다.");
-        Scanner scanner = new Scanner(System.in);
-        String pwd;
-        if (secret == true) {
-            System.out.print("비밀번호를 입력하세요: ");
-            pwd = scanner.next();
-            if (pwd.equals(password)) {
-                System.out.println("비밀번호 일치!");
-                return true;
-            } else {
-                System.out.println("비밀번호가 일치하지 않습니다.");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void updateFile(int nb_board, PreparedStatement pstmt){
+    public boolean updateFile(int nb_board, PreparedStatement pstmt){
         String idFile = "";
         String fileName;
         int flag = 0;
-        int rows = 0;
+        int rows1 = 0;
+        int rows2 = 0;
         String fileExt = null;
 
         System.out.print("파일을 업데이트 하십니까?(Y/N): ");
@@ -557,7 +457,7 @@ public class BoardCrud implements Crud{
 
             // file 존재 여부 확인
             if(!isFileExist(fileName)){
-                return;
+                return false;
             }
 
             //TB_BOARD query
@@ -572,7 +472,7 @@ public class BoardCrud implements Crud{
                 //TB_BOARD update -> UPDATE FK
                 pstmt = this.connection.prepareStatement(sql1);
                 pstmt.setString(1, idFile);
-                rows = pstmt.executeUpdate();
+                rows1 = pstmt.executeUpdate();
 
 
                 int idx = fileName.lastIndexOf(".");
@@ -589,8 +489,9 @@ public class BoardCrud implements Crud{
                 pstmt.setString(4, fileExt);
                 pstmt.setInt(5, 0);
 
-                rows = pstmt.executeUpdate();
+                rows2 = pstmt.executeUpdate();
 
+                return (rows1>0 && rows2>0);
             } catch (SQLException | FileNotFoundException e) {
                 throw new RuntimeException(e);
             }finally {
@@ -603,6 +504,7 @@ public class BoardCrud implements Crud{
 
             }
         }
+        return false;
     }
     public boolean isPostContainFile(int nb_board){
         PreparedStatement pstmt=null;
@@ -645,6 +547,33 @@ public class BoardCrud implements Crud{
         // 파일이 존재하지 않는다면 return
         System.out.println("파일이 존재하지 않습니다.");
         return false;
+    }
+
+    //비밀번호 검증
+    public static boolean pwdValidation(String password){
+        Pattern pwdPattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{5,15}$");
+        Matcher pwdMatcher = pwdPattern.matcher(password);
+        if(!pwdMatcher.find()){
+            return false;
+        }
+        return true;
+    }
+    private boolean checkPassword(boolean secret, String password) {
+        System.out.println("비밀번호는 영문자(대문자/소문자 1 이상 포함), 숫자 1이상 포함, 5~15자리여야 합니다.");
+        Scanner scanner = new Scanner(System.in);
+        String pwd;
+        if (secret == true) {
+            System.out.print("비밀번호를 입력하세요: ");
+            pwd = scanner.next();
+            if (pwd.equals(password)) {
+                System.out.println("비밀번호 일치!");
+                return true;
+            } else {
+                System.out.println("비밀번호가 일치하지 않습니다.");
+                return false;
+            }
+        }
+        return true;
     }
 
 }

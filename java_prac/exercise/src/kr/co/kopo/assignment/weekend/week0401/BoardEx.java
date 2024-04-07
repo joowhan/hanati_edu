@@ -26,7 +26,6 @@ public class BoardEx {
                 System.out.println("--------------------");
                 //1. 목록 조회
                 boardCrud.readTable();
-//                BoardCrud.readList(boardCrud);
 
             }
             else if(inputData==2){
