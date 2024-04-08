@@ -1,5 +1,7 @@
 package kr.co.kopo;
 
+import kr.co.kopo.user.TbUser;
+
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,7 +41,15 @@ public class Validation {
         }
         return true;
     }
+    public static boolean login(TbUser tbUser){
+        Scanner scanner = new Scanner(System.in);
+        if(checkId(tbUser.getIdUser()) && checkPassword(tbUser.getNmPaswd())){
+            return true;
+        }
+        System.out.println("아이디 또는 비밀번호가 일치하지 않습니다.");
+        return false;
 
+    }
     private static boolean checkId(String id){
         System.out.println("아이디는 영문자, 숫자 사용 가능, 5~15자리여야 합니다.");
         Scanner scanner = new Scanner(System.in);
@@ -47,10 +57,10 @@ public class Validation {
         System.out.print("아이디를 입력하세요: ");
         inputId = scanner.next();
         if (inputId.equals(id)) {
-            System.out.println("아이디 일치!");
+//            System.out.println("아이디 일치!");
             return true;
         } else {
-            System.out.println("아이디가 일치하지 않습니다.");
+//            System.out.println("아이디가 일치하지 않습니다.");
             return false;
         }
     }
@@ -61,10 +71,10 @@ public class Validation {
         System.out.print("비밀번호를 입력하세요: ");
         pwd = scanner.next();
         if (pwd.equals(password)) {
-            System.out.println("비밀번호 일치!");
+//            System.out.println("비밀번호 일치!");
             return true;
         } else {
-            System.out.println("비밀번호가 일치하지 않습니다.");
+//            System.out.println("비밀번호가 일치하지 않습니다.");
             return false;
         }
     }

@@ -5,4 +5,5 @@ public interface Crud {
     boolean insertData();
     boolean updateData(String noUser);
     boolean deleteData(String[] noUser);
+    boolean deleteData(String noUser);
 }

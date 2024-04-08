@@ -84,7 +84,16 @@ public class UserCrud implements Crud {
                 }
                 // 사용자 삭제
                 else if(inputData==3){
-                    if(deleteData()){
+                    //입력 받기
+                    if(tb_UserList.size()==0){
+                        System.out.println("글이 없습니다. 글을 새로 작성해주세요!");
+                        continue;
+                    }
+                    System.out.print("삭제할 글의 idx 번호를 입력해주세요. (띄어써서 입력): ");
+                    String docNums = scanner.nextLine();
+                    String[] arr = docNums.split(" ");
+
+                    if(deleteData(arr)){
                         System.out.println("사용자 삭제 성공!");
                     }
                     else{
@@ -201,13 +210,38 @@ public class UserCrud implements Crud {
             pstmt = this.connection.prepareStatement(sql1);
             pstmt.setString(1,noUser);
             rs = pstmt.executeQuery();
+
             System.out.println("------------------------------------------------------------------------------------------------------------------------");
             while(rs.next()){
+                //정보 불러오기
+                tbUser.setNoUser(rs.getString(1));
+                tbUser.setIdUser(rs.getString(2));
+                tbUser.setNmUser(rs.getString(3));
+                tbUser.setNmPaswd(rs.getString(4));
+                tbUser.setNmEmail(rs.getString(5));
+                tbUser.setStStatus(rs.getString(6));
+                //로그인 후 상세보기 가능
+                if(!Validation.login(tbUser)){
+                    return false;
+                }
+                System.out.printf("%-15s %-18s %-20s %-20s %-25s %-20s \n","사용자 번호","사용자 ID","사용자명","비밀번호","이메일","상태");
                 System.out.printf("%-20s %-20s %-20s %-20s %-30s %-20s \n",
                         rs.getString(1),rs.getString(2),rs.getString(3),
                         rs.getString(4),rs.getString(5),rs.getString(6));
+
             }
             System.out.println("------------------------------------------------------------------------------------------------------------------------");
+
+            System.out.print("사용자명: ");
+            tbUser.setNmUser(scanner.nextLine());
+
+            System.out.print("새로운 비밀번호: ");
+            tbUser.setNmPaswd(scanner.nextLine());
+
+            System.out.print("이메일: ");
+            tbUser.setNmEmail(scanner.nextLine());
+
+            
 
 
         } catch (SQLException e) {
@@ -218,6 +252,13 @@ public class UserCrud implements Crud {
 
     @Override
     public boolean deleteData(String[] arr) {
+
+        return false;
+    }
+
+    @Override
+    public boolean deleteData(String noUser) {
+
         return false;
     }
 
