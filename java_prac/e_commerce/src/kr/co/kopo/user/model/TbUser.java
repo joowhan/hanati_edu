@@ -1,4 +1,4 @@
-package kr.co.kopo.user;
+package kr.co.kopo.user.model;
 
 public class TbUser {
     private String noUser;

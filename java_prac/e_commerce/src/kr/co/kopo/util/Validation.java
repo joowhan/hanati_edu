@@ -1,6 +1,6 @@
-package kr.co.kopo;
+package kr.co.kopo.util;
 
-import kr.co.kopo.user.TbUser;
+import kr.co.kopo.user.model.TbUser;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;

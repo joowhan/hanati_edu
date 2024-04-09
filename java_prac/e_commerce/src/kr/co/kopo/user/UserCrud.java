@@ -1,14 +1,16 @@
 package kr.co.kopo.user;
 
-import kr.co.kopo.Crud;
-import kr.co.kopo.DbConnection;
-import kr.co.kopo.Validation;
+import kr.co.kopo.util.Crud;
+import kr.co.kopo.util.DbConnection;
+import kr.co.kopo.util.Validation;
+import kr.co.kopo.user.model.TbUser;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -54,62 +56,68 @@ public class UserCrud implements Crud {
                 System.out.println("------------------------------------------------------------------------------------------------------------------------");
                 System.out.println("1. 사용자 추가 2. 상세 조회 및 수정 3. (다중)삭제 4. 종료");
                 System.out.print("선택 > ");
-                inputData = scanner.nextInt();
-                scanner.nextLine();
-                //사용자 추가
-                if(inputData==1){
-                    if(insertData()){
-                        System.out.println("사용자 추가 성공!");
-                    }
-                    else{
-                        System.out.println("사용자 추가 실패");
-                    }
-                }
-                // 사용자 정보 수정
-                else if(inputData==2){
-                    System.out.print("조회할 사용자 번호를 입력하세요: ");
-                    String noUser = scanner.nextLine();
-                    if(tb_UserList.contains(noUser)){
-                        if(updateData(noUser)){
-                            System.out.println("사용자 수정 성공!");
+                try{
+                    inputData = scanner.nextInt();
+                    scanner.nextLine();
+                    //사용자 추가
+                    if(inputData==1){
+                        if(insertData()){
+                            System.out.println("사용자 추가 성공!");
                         }
                         else{
-                            System.out.println("사용자 수정 실패");
+                            System.out.println("사용자 추가 실패");
                         }
                     }
-                    else{
-                        System.out.println("사용자 번호가 존재하지 않습니다.");
-                    }
+                    // 사용자 정보 수정
+                    else if(inputData==2){
+                        System.out.print("조회할 사용자 번호를 입력하세요: ");
+                        String noUser = scanner.nextLine();
+                        if(tb_UserList.contains(noUser)){
+                            if(updateData(noUser)){
+                                System.out.println("사용자 수정 성공!");
+                            }
+                            else{
+                                System.out.println("사용자 수정 실패");
+                            }
+                        }
+                        else{
+                            System.out.println("사용자 번호가 존재하지 않습니다.");
+                        }
 
-                }
-                // 사용자 삭제
-                else if(inputData==3){
-                    //입력 받기
-                    if(tb_UserList.size()==0){
-                        System.out.println("글이 없습니다. 글을 새로 작성해주세요!");
-                        continue;
                     }
-                    System.out.print("삭제할 글의 idx 번호를 입력해주세요. (띄어써서 입력): ");
-                    String docNums = scanner.nextLine();
-                    String[] arr = docNums.split(" ");
+                    // 사용자 삭제
+                    else if(inputData==3){
+                        //입력 받기
+                        if(tb_UserList.size()==0){
+                            System.out.println("글이 없습니다. 글을 새로 작성해주세요!");
+                            continue;
+                        }
+                        System.out.print("삭제할 글의 idx 번호를 입력해주세요. (띄어써서 입력): ");
+                        String docNums = scanner.nextLine();
+                        String[] arr = docNums.split(" ");
 
-                    if(deleteData(arr)){
-                        System.out.println("사용자 삭제 성공!");
+                        if(deleteData(arr)){
+                            System.out.println("사용자 삭제 성공!");
+                        }
+                        else{
+                            System.out.println("사용자 삭제 실패");
+                        }
                     }
-                    else{
-                        System.out.println("사용자 삭제 실패");
-                    }
-                }
-                //프로그램 종료
-                else if(inputData==4){
-                    System.out.println("프로그램 종료.");
+                    //프로그램 종료
+                    else if(inputData==4){
+                        System.out.println("프로그램 종료.");
 //                    DbConnection.dbUnconnected(connection);
+                        break;
+                    }
+                    else{
+                        System.out.println("다시 입력하세요.");
+                        System.out.println("------------------------------------------------------------------------------------------------------------------------");
+                    }
+                } catch(InputMismatchException e){
+                    System.out.println("정수만 입력 가능합니다. ");
                     break;
                 }
-                else{
-                    System.out.println("다시 입력하세요.");
-                    System.out.println("------------------------------------------------------------------------------------------------------------------------");
-                }
+
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -205,6 +213,12 @@ public class UserCrud implements Crud {
                 "FROM TB_USER " +
                 "WHERE NO_USER=? "+
                 "ORDER BY NO_USER ASC";
+
+        String sql2 = "UPDATE TB_USER SET " +
+                "    NM_USER=?, " +
+                "    NM_PASWD=?, " +
+                "    NM_EMAIL=? " +
+                "    WHERE NO_USER=?";
         TbUser tbUser = new TbUser();
         try{
             pstmt = this.connection.prepareStatement(sql1);
@@ -220,10 +234,10 @@ public class UserCrud implements Crud {
                 tbUser.setNmPaswd(rs.getString(4));
                 tbUser.setNmEmail(rs.getString(5));
                 tbUser.setStStatus(rs.getString(6));
-                //로그인 후 상세보기 가능
-                if(!Validation.login(tbUser)){
-                    return false;
-                }
+//                //로그인 후 상세보기 가능
+//                if(!Validation.login(tbUser)){
+//                    return false;
+//                }
                 System.out.printf("%-15s %-18s %-20s %-20s %-25s %-20s \n","사용자 번호","사용자 ID","사용자명","비밀번호","이메일","상태");
                 System.out.printf("%-20s %-20s %-20s %-20s %-30s %-20s \n",
                         rs.getString(1),rs.getString(2),rs.getString(3),
@@ -241,25 +255,56 @@ public class UserCrud implements Crud {
             System.out.print("이메일: ");
             tbUser.setNmEmail(scanner.nextLine());
 
-            
+            pstmt = this.connection.prepareStatement(sql2);
+            pstmt.setString(1,tbUser.getNmUser());
+            pstmt.setString(2, tbUser.getNmPaswd());
+            pstmt.setString(3, tbUser.getNmEmail());
+            pstmt.setString(4, noUser);
 
+            int rows = pstmt.executeUpdate();
+            return rows>0;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return false;
     }
 
     @Override
     public boolean deleteData(String[] arr) {
-
-        return false;
+        for (String s : arr) {
+            if (!deleteData(s))
+                return false;
+        }
+        return true;
     }
 
     @Override
     public boolean deleteData(String noUser) {
 
-        return false;
+        int rows = 0;
+        PreparedStatement pstmt=null;
+
+        String sql = "DELETE FROM TB_USER WHERE NO_USER = ?";
+        //tb_board 삭제, 이때 파일이 존재한다면 tb_content까지 삭제
+
+        try {
+
+            pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, noUser);
+            rows = pstmt.executeUpdate();
+
+            return rows>0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            try{
+                assert pstmt != null;
+                pstmt.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public boolean isUserExist(String id_user){
