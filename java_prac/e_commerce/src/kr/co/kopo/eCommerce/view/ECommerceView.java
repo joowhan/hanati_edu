@@ -81,9 +81,11 @@ public class ECommerceView {
             if(!Validation.isLogined()){
                 System.out.println("접속 계정: 계정 없음");
                 loginedMsg = "로그인";
+
             }
             else{
                 System.out.println("접속 계정: "+ CurrUser.getCurrUser().getIdUser());
+                ecommerceController.setTbBasketItemList();
                 loginedMsg ="로그아웃";
             }
             System.out.println("------------------------------------------------------------------------------------------------------------------------");
@@ -103,7 +105,7 @@ public class ECommerceView {
                 }
                 //장바구니 조회 -> 주문
                 else if(inputData==3){
-
+                    this.printBusketDetailView(ecommerceController);
                 }
                 //로그인
                 else if (inputData==4) {
@@ -140,8 +142,10 @@ public class ECommerceView {
         System.out.print("구매할 개수를 입력하세요: ");
         int qtStock = scanner.nextInt();
         scanner.nextLine();
-        ecommerceController.insertItemToBusket(noProduct,qtStock);
-
+        if(ecommerceController.insertItemToBasket(noProduct,qtStock))
+            System.out.println("장바구니에 성공적으로 담겼습니다.");
+        else
+            System.out.println("장바구니 추가 실패!");
 
     }
     public void printBusketDetailView(EcommerceController ecommerceController){
@@ -149,6 +153,15 @@ public class ECommerceView {
             System.out.println("로그인 후 이용해주세요.");
             return;
         }
+        ecommerceController.readBasket();
+        System.out.print("주문하시겠습니까?(Y/N) ");
+        String answer = scanner.nextLine();
+        if(answer.equalsIgnoreCase("N")) return;
+        if(ecommerceController.orderBasketList())
+            System.out.println("전체 주문 완료!");
+        else
+            System.out.println("전체 주문 실패!");
+
     }
     public void printOrderView(EcommerceController ecommerceController){
         System.out.print("주문할 상품 코드를 입력하세요: ");

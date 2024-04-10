@@ -1,6 +1,7 @@
 package kr.co.kopo.eCommerce.controller;
 
 import kr.co.kopo.eCommerce.model.TbBasket;
+import kr.co.kopo.eCommerce.model.TbBasketItem;
 import kr.co.kopo.eCommerce.model.TbOrder;
 import kr.co.kopo.eCommerce.model.TbOrderItem;
 import kr.co.kopo.product.model.TbProduct;
@@ -8,12 +9,14 @@ import kr.co.kopo.user.CurrUser;
 import kr.co.kopo.user.model.TbUser;
 import kr.co.kopo.util.DbConnection;
 import kr.co.kopo.util.Validation;
+import oracle.net.ano.SupervisorService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class EcommerceController {
@@ -22,7 +25,8 @@ public class EcommerceController {
     private static LinkedHashMap<String, TbProduct> tbProductList = null;
     private static LinkedHashMap<String, TbUser> tbUserList = null;
     private static LinkedHashMap<Integer, TbBasket> tbBasketList = null;
-    private static LinkedHashMap<Integer, TbBasket> tbOrderList = null;
+    private static LinkedHashMap<String, TbOrder> tbOrderList = null;
+    private static LinkedHashMap<Integer, TbBasketItem> tbBasketItemList = null;
     public EcommerceController(){
         try{
 //            DbConnection.dbUnconnected(connection);
@@ -151,6 +155,35 @@ public class EcommerceController {
 
         }
     }
+    public void setTbBasketItemList(){
+        tbBasketItemList = new LinkedHashMap<>();
+        ResultSet rs = null;
+        PreparedStatement pstmt=null;
+        String sql="SELECT NB_BASKET_ITEM, NB_BASKET, CN_BASKET_ITEM_ORDER, NO_PRODUCT," +
+                " NO_USER, QT_BASKET_ITEM_PRICE, QT_BASKET_ITEM,QT_BASKET_ITEM_AMOUNT " +
+                "FROM TB_BASKET_ITEM " +
+                "WHERE NO_USER = ?";
+        try{
+
+            pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1,CurrUser.getCurrUser().getNoUser());
+            rs = pstmt.executeQuery();
+            while(rs.next()){
+                TbBasketItem tbBasketItem = new TbBasketItem();
+                tbBasketItem.setNbBasketItem(rs.getInt(1));
+                tbBasketItem.setNbBasket(rs.getInt(2));
+                tbBasketItem.setCnBasketItemOrder(rs.getInt(3));
+                tbBasketItem.setNoProduct(rs.getString(4));
+                tbBasketItem.setNoUser(rs.getString(5));
+                tbBasketItem.setQtBasketItemPrice(rs.getInt(6));
+                tbBasketItem.setQtBasketItem(rs.getInt(7));
+                tbBasketItem.setQtBasketItemAmount(rs.getInt(8));
+                tbBasketItemList.put(tbBasketItem.getNbBasketItem(), tbBasketItem);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void setTbOrderList(){
 
@@ -230,7 +263,7 @@ public class EcommerceController {
             throw new RuntimeException(e);
         }
 
-        // 해당 주문이 이미 테이블에 존재하는지? -> 존재한다면 해당 주문 업데이트
+        // 해당 주문이 이미 테이블에 존재하는지? -> 존재한다면 해당 주문 업데이트 -> 단일 주문에 대해서는 1주문 - 1아이템, 단체 주문 1주문-여러 아이템
         //주문 테이블에 주문 기록 부여 insert -> tbProductList에서도 반영 -> 수량
         TbOrder tbOrder = new TbOrder();
         String sql2 = "select 'OR' || LPAD(seq_tb_order.nextval, 7, '0') from dual";
@@ -262,6 +295,8 @@ public class EcommerceController {
             pstmt.setString(6, tbOrder.getNmOrderPerson());
 
             rows1 = pstmt.executeUpdate();
+
+
             if(rows1 <= 0){
                 return false;
             }
@@ -307,6 +342,13 @@ public class EcommerceController {
             pstmt.setInt(9,tbOrderItem.getQtOrderItemDeliveryFee());
 
             rows2 = pstmt.executeUpdate();
+
+            //재고 줄이기
+            String sql6 = "UPDATE TB_PRODUCT SET QT_STOCK = QT_STOCK-1 WHERE NO_PRODUCT = ?";
+            pstmt = connection.prepareStatement(sql6);
+            pstmt.setString(1, noProduct);
+            pstmt.executeUpdate();
+
             if(rows2<=0) return false;
 
         } catch (SQLException e) {
@@ -327,14 +369,14 @@ public class EcommerceController {
     }
 
     //장바구니 담기
-    public boolean insertItemToBusket(String noProduct, int qtStock){
+    public boolean insertItemToBasket(String noProduct, int qtStock){
         PreparedStatement pstmt=null;
         ResultSet rs = null;
         int rows = 0;
         TbBasket tbBasket = CurrUser.getCurrUserBasket();
-
+        TbBasketItem tbBasketItem = new TbBasketItem();
         //tb_basket의 금액 update, db에도 반영
-        String sql = "UPDATE TB_BASKET SET QT_BASKET_AMOUNT = ? WHERE NO_BASKET = ?";
+        String sql = "UPDATE TB_BASKET SET QT_BASKET_AMOUNT = ? WHERE NB_BASKET = ?";
         try{
             pstmt = connection.prepareStatement(sql);
             pstmt.setInt(1, tbBasket.getQtBasketAmount()+tbProductList.get(noProduct).getQtSalePrice());
@@ -345,31 +387,246 @@ public class EcommerceController {
         }
         tbBasket.setQtBasketAmount(tbBasket.getNbBasket()+tbProductList.get(noProduct).getQtSalePrice());
         //tb_basket_item 테이블에 insert
-        String sql1 ="select seq_tb_basket_item.nextval from dual";
-        String sql2 = "INSERT INTO TB_BASKET_ITEM(NB_BASKET_ITEM, NB_BASKET, CN_BASKET_ITEM_ORDER, NO_PRODUCT, NO_USER, QT_BASKET_ITEM,QT_BASKET_ITEM_AMOUNT) " +
+        String sql1 = "select seq_tb_basket_item.nextval from dual";
+        String sql2 = "SELECT COUNT(*) FROM TB_BASKET_ITEM WHERE NB_BASKET=?";
+        String sql3 = "INSERT INTO TB_BASKET_ITEM(NB_BASKET_ITEM, NB_BASKET, CN_BASKET_ITEM_ORDER, NO_PRODUCT, NO_USER, QT_BASKET_ITEM_PRICE, QT_BASKET_ITEM,QT_BASKET_ITEM_AMOUNT) " +
                 "VALUES(?,?,?,?,?,?,?,?)";
+
         try{
             pstmt = connection.prepareStatement(sql1);
             rs = pstmt.executeQuery();
             if(rs.next()){
-                
+                tbBasketItem.setNbBasketItem(rs.getInt(1));
             }
-            pstmt = connection.prepareStatement(sql2);
-            pstmt.setInt(1,);
-            pstmt.setInt(2,);
-            pstmt.setInt(3,);
-            pstmt.setString(4,);
-            pstmt.setString(5,);
-            pstmt.setInt(6,);
-            pstmt.setInt(7,);
-            pstmt.setInt(8,);
 
+            pstmt = connection.prepareStatement(sql2);
+            pstmt.setInt(1, tbBasket.getNbBasket());
+            rs = pstmt.executeQuery();
+            if(rs.next()){
+                tbBasketItem.setCnBasketItemOrder(rs.getInt(1)+1); //품목 순번 => count(item)+1
+            }
+            //table set
+            tbBasketItem.setNbBasket(tbBasket.getNbBasket());
+            tbBasketItem.setNoProduct(noProduct);
+            tbBasketItem.setNoUser(CurrUser.getCurrUser().getNoUser());
+            tbBasketItem.setQtBasketItemPrice(tbProductList.get(noProduct).getQtSalePrice());
+            tbBasketItem.setQtBasketItem(qtStock);
+            tbBasketItem.setQtBasketItemAmount(tbProductList.get(noProduct).getQtSalePrice()*qtStock);
+
+            pstmt = connection.prepareStatement(sql3);
+            pstmt.setInt(1,tbBasketItem.getNbBasketItem());
+            pstmt.setInt(2,tbBasketItem.getNbBasket());
+            pstmt.setInt(3,tbBasketItem.getCnBasketItemOrder());
+            pstmt.setString(4,tbBasketItem.getNoProduct());
+            pstmt.setString(5,tbBasketItem.getNoUser());
+            pstmt.setInt(6,tbBasketItem.getQtBasketItemPrice());
+            pstmt.setInt(7,tbBasketItem.getQtBasketItem());
+            pstmt.setInt(8,tbBasketItem.getQtBasketItemAmount());
+
+            rows = pstmt.executeUpdate();
+            return rows>0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            try {
+                if(rs!=null && pstmt!=null){
+                    pstmt.close();
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public void readBasket(){
+        ResultSet rs =null;
+        PreparedStatement pstmt = null;
+        String sql ="SELECT I.CN_BASKET_ITEM_ORDER, I.NO_PRODUCT, B.NM_PRODUCT," +
+                "I.QT_BASKET_ITEM, I.QT_BASKET_ITEM_AMOUNT " +
+                "FROM TB_BASKET_ITEM I JOIN TB_PRODUCT B ON I.NO_PRODUCT=B.NO_PRODUCT " +
+                "WHERE I.NB_BASKET = ? ";
+        try{
+            pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, CurrUser.getCurrUserBasket().getNbBasket());
+            rs = pstmt.executeQuery();
+            System.out.printf("%-15s %-18s %-20s %-20s %-20s \n","순번","상품코드","상품명","수량","금액");
+            System.out.println("------------------------------------------------------------------------------------------------------------------------");
+            while(rs.next()){
+                System.out.printf("%-15s %-18s %-20s %-20s %-20s \n",
+                        rs.getInt(1),rs.getString(2),
+                        rs.getString(3), rs.getInt(4), rs.getInt(5));
+            }
+            System.out.println("------------------------------------------------------------------------------------------------------------------------");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            try {
+                if(rs!=null && pstmt!=null){
+                    pstmt.close();
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+    // 장바구니 전체 조회
+    public boolean orderBasketList(){
+        //주문 nextval 생성
+        String sql1 = "select 'OR' || LPAD(seq_tb_order.nextval, 7, '0') from dual";
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
+        String idOrder = null;
+        String sql2 = "DELETE FROM TB_BASKET_ITEM WHERE NO_USER =?";
+        try{
+            pstmt = connection.prepareStatement(sql1);
+            rs = pstmt.executeQuery();
+            if(rs.next())
+                idOrder = rs.getString(1);
+            int cnt = 0;
+            for(Map.Entry<Integer,TbBasketItem> entry:tbBasketItemList.entrySet()){
+                cnt ++;
+                orderBasketItem(idOrder, entry.getValue(), cnt);
+            }
+
+            //장바구니 내역 전부 삭제 tbBasketItemList = null;
+            tbBasketItemList = null;
+            pstmt = connection.prepareStatement(sql2);
+            pstmt.setString(1, CurrUser.getCurrUser().getNoUser());
+            int rows = pstmt.executeUpdate();
+            return rows>0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return false;
     }
+    public void orderBasketItem(String idOrder, TbBasketItem tbBasketItem, int cnt){
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
+        TbOrder tbOrder = new TbOrder();
+        //idOrder가 TB_ORDER에 존재하지 않는다면 -> TB_ORDER에 idOrder로 새롭게 추가
+        try{
+            String sql1 = "select id_order " +
+                    "from tb_order " +
+                    "where id_order = ?";
+            String sql2 ="INSERT INTO TB_ORDER(ID_ORDER, NO_USER, QT_ORDER_AMOUNT, QT_DELI_MONEY,QT_DELI_PERIOD, NM_ORDER_PERSON, DA_ORDER, ST_ORDER) " +
+                    " VALUES(?,?,?,?,?,?,SYSDATE,'10')";
+            pstmt = connection.prepareStatement(sql1);
+            pstmt.setString(1,idOrder);
+            rs = pstmt.executeQuery();
+            // 존재하지 않는다면 TB_ORDER 추가
+            if(!rs.next()){
+                pstmt = connection.prepareStatement(sql2);
+
+
+                tbOrder.setIdOrder(idOrder);
+                tbOrder.setNoUser(CurrUser.getCurrUser().getNoUser());
+                tbOrder.setQtOrderAmount(tbProductList.get(tbBasketItem.getNoProduct()).getQtCustomer()*tbBasketItem.getQtBasketItem());
+                tbOrder.setQtDeilMoney(tbProductList.get(tbBasketItem.getNoProduct()).getQtDeliveryFee());
+                tbOrder.setQtDeilPeriod(3);
+                tbOrder.setNmOrderPerson(CurrUser.getCurrUser().getNmUser());
+
+
+                pstmt.setString(1, tbOrder.getIdOrder());
+                pstmt.setString(2, tbOrder.getNoUser());
+                pstmt.setInt(3, tbOrder.getQtOrderAmount());
+                pstmt.setInt(4, tbOrder.getQtDeilMoney());
+                pstmt.setInt(5, tbOrder.getQtDeilPeriod());
+                pstmt.setString(6, tbOrder.getNmOrderPerson());
+                int rows =pstmt.executeUpdate();
+
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        //재고가 부족한지 확인
+        String sql3="select qt_stock " +
+                "from tb_product " +
+                "where no_product = ?";
+        try{
+            pstmt = connection.prepareStatement(sql3);
+            pstmt.setString(1, tbBasketItem.getNoProduct());
+            rs = pstmt.executeQuery();
+
+            if(rs.next()){
+                if(rs.getInt(1) < tbBasketItem.getQtBasketItem()){
+                    System.out.println("재고 수량이 부족합니다.");
+                    return;
+                }
+            }
+            else{
+                System.out.println("해당 상품은 존재하지 않습니다.");
+                return;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        //주문에 해당하는 orderItem에도 추가 + TB_ORDER 금액 업데이트
+        TbOrderItem tbOrderItem = new TbOrderItem();
+        String sql4 = "select 'OI' || LPAD(seq_tb_order_item.nextval, 7, '0') from dual";
+        String sql5 = "INSERT INTO TB_ORDER_ITEM(ID_ORDER_ITEM, ID_ORDER, CN_ORDER_ITEM, NO_PRODUCT, NO_USER, QT_UNIT_PRICE, QT_ORDER_ITEM, QT_ORDER_ITEM_AMOUNT, QT_ORDER_ITEM_DELIVERY_FEE) " +
+                " VALUES (?,?,?,?,?,?,?,?,?)";
+        try{
+            pstmt = connection.prepareStatement(sql4);
+            rs = pstmt.executeQuery();
+            if(rs.next()){
+                tbOrderItem.setIdOrderItem(rs.getString(1));
+            }
+            else{
+                return;
+            }
+            String noProduct = tbBasketItem.getNoProduct();
+            tbOrderItem.setIdOrder(idOrder);
+            tbOrderItem.setCnOrderItem(cnt);
+            tbOrderItem.setNoProduct(noProduct);
+            tbOrderItem.setNoUser(CurrUser.getCurrUser().getNoUser());
+            tbOrderItem.setQtUnitPrice(tbBasketItem.getQtBasketItemPrice());
+            tbOrderItem.setQtOrderItem(tbBasketItem.getQtBasketItem());
+            tbOrderItem.setQtOrderItemAmount(tbBasketItem.getQtBasketItemAmount());
+            tbOrderItem.setQtOrderItemDeliveryFee(tbProductList.get(noProduct).getQtDeliveryFee());
+
+            pstmt = connection.prepareStatement(sql5);
+            pstmt.setString(1,tbOrderItem.getIdOrderItem());
+            pstmt.setString(2, tbOrderItem.getIdOrder());
+            pstmt.setInt(3,tbOrderItem.getCnOrderItem());
+            pstmt.setString(4, tbOrderItem.getNoProduct());
+            pstmt.setString(5,tbOrderItem.getNoUser());
+            pstmt.setInt(6,tbOrderItem.getQtUnitPrice());
+            pstmt.setInt(7,tbOrderItem.getQtOrderItem());
+            pstmt.setInt(8,tbOrderItem.getQtOrderItemAmount());
+            pstmt.setInt(9,tbOrderItem.getQtOrderItemDeliveryFee());
+
+            int rows2 = pstmt.executeUpdate();
+            //재고 줄이기
+            String sql6 = "UPDATE TB_PRODUCT SET QT_STOCK = QT_STOCK-1 WHERE NO_PRODUCT = ?";
+            pstmt = connection.prepareStatement(sql6);
+            pstmt.setString(1, noProduct);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if(rs!=null && pstmt!=null){
+                    pstmt.close();
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
     //회원가입
     public boolean signUp() {
         String sql1="INSERT INTO TB_USER(NO_USER, ID_USER, NM_USER, NM_PASWD, NM_EMAIL, ST_STATUS) " +

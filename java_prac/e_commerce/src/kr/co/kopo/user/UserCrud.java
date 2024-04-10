@@ -139,12 +139,25 @@ public class UserCrud implements Crud {
     @Override
     public boolean insertData() {
         String sql="INSERT INTO TB_USER(NO_USER, ID_USER, NM_USER, NM_PASWD, NM_EMAIL, ST_STATUS) " +
-                "VALUES('PD' || LPAD(seq_tb_user.nextval, 5, '0'),?,?,?,?,'ST01')";
+                "VALUES(?,?,?,?,?,'ST01')";
+        String sql2 = "select 'PD' || LPAD(seq_tb_user.nextval, 5, '0') from dual";
         PreparedStatement pstmt=null;
+        ResultSet rs = null;
+        String noUser="";
+        TbUser tbUser = new TbUser();
+        try{
+            pstmt = connection.prepareStatement(sql2);
+            rs = pstmt.executeQuery();
+            if(rs.next()){
+                tbUser.setNoUser(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         int rows = 0;
 
         // 새롭게 id, pwd 생성
-        TbUser tbUser = new TbUser();
+
 //        System.out.println("뒤로가기: exit 입력");
         System.out.print("이름을 입력하세요: ");
         tbUser.setNmUser(scanner.nextLine());
@@ -184,11 +197,19 @@ public class UserCrud implements Crud {
 
         try{
             pstmt = this.connection.prepareStatement(sql);
-            pstmt.setString(1,tbUser.getIdUser());
-            pstmt.setString(2, tbUser.getNmUser());
-            pstmt.setString(3, tbUser.getNmPaswd());
-            pstmt.setString(4, tbUser.getNmEmail());
+            pstmt.setString(1,tbUser.getNoUser());
+            pstmt.setString(2,tbUser.getIdUser());
+            pstmt.setString(3, tbUser.getNmUser());
+            pstmt.setString(4, tbUser.getNmPaswd());
+            pstmt.setString(5, tbUser.getNmEmail());
             rows = pstmt.executeUpdate();
+
+            //장바구니 추가
+            String sql1 = "INSERT INTO TB_BASKET(NB_BASKET, NO_USER,qt_basket_amount) VALUES (SEQ_TB_BASKET.NEXTVAL, ?, 0) ";
+            pstmt = connection.prepareStatement(sql1);
+            pstmt.setString(1,tbUser.getNoUser());
+            int rows1 = pstmt.executeUpdate();
+
             return rows>0;
 
         } catch (SQLException e) {
@@ -256,7 +277,9 @@ public class UserCrud implements Crud {
 
             System.out.print("이메일: ");
             tbUser.setNmEmail(scanner.nextLine());
-
+            if(!Validation.idValidation(tbUser.getNmPaswd())||!Validation.emailValidation(tbUser.getNmEmail())){
+                return false;
+            }
             pstmt = this.connection.prepareStatement(sql2);
             pstmt.setString(1,tbUser.getNmUser());
             pstmt.setString(2, tbUser.getNmPaswd());

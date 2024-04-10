@@ -129,7 +129,7 @@ public class ProductCrud implements ProductCrudInterface {
                         System.out.print("조회할 사용자 번호를 입력하세요: ");
                         String noProduct = scanner.nextLine();
                         if(tbProductList.containsKey(noProduct)){
-                            if(updateData(noProduct)){
+                            if(updateData(nbCategory, noProduct)){
                                 System.out.println("상품 수정 성공!");
                             }
                             else{
@@ -150,9 +150,9 @@ public class ProductCrud implements ProductCrudInterface {
                         }
                         System.out.print("삭제할 상품의 idx 번호를 입력해주세요.: ");
                         String docNums = scanner.nextLine();
-                        String[] arr = docNums.split(" ");
+//                        String[] arr = docNums.split(" ");
 
-                        if(deleteData(arr)){
+                        if(deleteData(nbCategory,docNums)){
                             System.out.println("상품 삭제 성공!");
                         }
                         else{
@@ -417,16 +417,18 @@ public class ProductCrud implements ProductCrudInterface {
     @Override
     public boolean deleteData(int nbCategory, String key) {
         TbProduct tbProduct = tbProductList.get(key);
-
         int rows = 0;
         PreparedStatement pstmt=null;
+
         String sql = "DELETE FROM TB_PRODUCT WHERE NO_PRODUCT = ?";
         try {
+            boolean delMapping = deleteMappingData(nbCategory,key);
+            System.out.println(delMapping);
 
             pstmt = connection.prepareStatement(sql);
             pstmt.setString(1, tbProduct.getNoProduct());
             rows = pstmt.executeUpdate();
-            if(deleteMappingData(nbCategory,key) && rows>0){
+            if(delMapping && rows>0){
                 tbProductList.remove(key);
                 return true;
             }
