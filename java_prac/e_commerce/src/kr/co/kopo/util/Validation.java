@@ -1,5 +1,6 @@
 package kr.co.kopo.util;
 
+import kr.co.kopo.user.CurrUser;
 import kr.co.kopo.user.model.TbUser;
 
 import java.util.Scanner;
@@ -42,13 +43,10 @@ public class Validation {
         return true;
     }
     public static boolean login(TbUser tbUser){
-        Scanner scanner = new Scanner(System.in);
-        if(checkId(tbUser.getIdUser()) && checkPassword(tbUser.getNmPaswd())){
-            return true;
-        }
-        System.out.println("아이디 또는 비밀번호가 일치하지 않습니다.");
-        return false;
-
+        return checkPassword(tbUser.getNmPaswd());
+    }
+    public static boolean isLogined(){
+        return CurrUser.getCurrUser() != null;
     }
     private static boolean checkId(String id){
         System.out.println("아이디는 영문자, 숫자 사용 가능, 5~15자리여야 합니다.");
@@ -69,9 +67,9 @@ public class Validation {
         Scanner scanner = new Scanner(System.in);
         String pwd;
         System.out.print("비밀번호를 입력하세요: ");
-        pwd = scanner.next();
+        pwd = scanner.nextLine();
         if (pwd.equals(password)) {
-//            System.out.println("비밀번호 일치!");
+            System.out.println("비밀번호 일치!");
             return true;
         } else {
 //            System.out.println("비밀번호가 일치하지 않습니다.");

@@ -3,7 +3,7 @@ package kr.co.kopo.eCommerce.model;
 public class TbBasket {
     private int nbBasket;
     private String noUser;
-    private String qtBasketAmount;
+    private int qtBasketAmount;
 
     public int getNbBasket() {
         return nbBasket;
@@ -13,7 +13,7 @@ public class TbBasket {
         return noUser;
     }
 
-    public String getQtBasketAmount() {
+    public int getQtBasketAmount() {
         return qtBasketAmount;
     }
 
@@ -25,7 +25,7 @@ public class TbBasket {
         this.noUser = noUser;
     }
 
-    public void setQtBasketAmount(String qtBasketAmount) {
+    public void setQtBasketAmount(int qtBasketAmount) {
         this.qtBasketAmount = qtBasketAmount;
     }
 }

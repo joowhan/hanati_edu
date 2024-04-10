@@ -9,14 +9,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class UserCrud implements Crud {
     Connection connection =null;
     Scanner scanner = null;
+    LinkedHashMap<String, TbUser> tbUserList=null;
     UserCrud(){
         try{
             this.connection = DbConnection.dbConnected();
@@ -25,6 +23,10 @@ public class UserCrud implements Crud {
             System.out.println("DB 연결에 실패하였습니다.");
             throw new RuntimeException(e);
         }
+    }
+    UserCrud(Connection connection, LinkedHashMap<String, TbUser> tbUserList){
+        this.connection = connection;
+        this.tbUserList = tbUserList;
     }
 
     @Override

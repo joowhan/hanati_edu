@@ -4,8 +4,8 @@ import kr.co.kopo.eCommerce.model.TbBasket;
 import kr.co.kopo.user.model.TbUser;
 
 public class CurrUser {
-    private static TbUser currUser;
-    private static TbBasket currUserBasket;
+    private static TbUser currUser =null;
+    private static TbBasket currUserBasket=null;
 
     public static TbUser getCurrUser() {
         return currUser;
