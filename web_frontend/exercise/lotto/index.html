@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Who are the presenters?</title>
         <style>
-            input {
+            #buttonId {
                 margin-left: 15px;
                 color: aquamarine;
                 background: #000;
@@ -20,14 +20,22 @@
     <body>
         <h1>Who are the presenters?</h1>
         <div>
-            <input id="buttonId" type="button" value="click Me" />
-        </div>
-        <div>
-            <h2>1. search</h2>
+            <h2>1. 로또 번호 입력(숫자를 띄어써서 입력)</h2>
+            <p></p>
+            <div>
+                <input type="text" name="숫자1" id="num1" />
+            </div>
+            <br />
+            <div>
+                <input id="buttonId" type="button" value="click Me" />
+            </div>
+            <h2>이번주 로또 번호</h2>
             <p id="result1"></p>
-            <h2>2. security</h2>
+
+            <h2>결과</h2>
             <p id="result2"></p>
         </div>
+
         <script src="./js/student.js"></script>
         <script src="./js/app.js" defer></script>
     </body>
