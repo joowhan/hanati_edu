@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 상속 받는 div -->
+    <div style="font-size: 20px;">
+        Lorem ipsum dolor sit.
+        <!-- child 역시 20px 글자 크기를 가짐 -->
+        <p>Lorem ipsum dolor sit.
+        </p>
+    </div>
+    <div style="border:1px solid #ccc">
+        Lorem ipsum dolor sit.
+        <!-- child는 border가 없음 -->
+        <p>Lorem ipsum dolor sit.
+        </p>
+    </div>
+    <div style="font-size: 20px;">
+        Lorem ipsum dolor sit.
+        <!-- 폰트 사이즈가 20px 아님 (상속받지 않음) -->
+        <button>Lorem
+        </button>
+    </div>
+    <div style="font-size: 20px;">
+        Lorem ipsum dolor sit.
+        <!-- 폰트 사이즈가 20px (상속받음) -->
+        <button style="font-size: inherit;">Lorem
+        </button>
+    </div>
+</body>
+
+</html>

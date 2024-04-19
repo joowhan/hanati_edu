@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Title</title>
+        <style>
+            div {
+                width: 500px;
+                border: solid 1px black;
+            }
+            .ellipsis {
+                white-space: nowrap; 
+                /* 줄바꿈을 하지 않음 */
+                overflow: hidden; 
+                /* 넘치는 부분을 숨김 */
+                text-overflow: ellipsis; 
+                /* 넘치는 부분을 ...으로 표시 */
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia dolorum aperiam quisquam laudantium obcaecati officiis molestias architecto veritatis adipisci unde perferendis, est quam
+            rerum recusandae doloremque neque dolore, aut omnis!
+        </div>
+        <div class="ellipsis">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia dolorum aperiam quisquam laudantium obcaecati officiis molestias architecto veritatis adipisci unde perferendis, est quam
+            rerum recusandae doloremque neque dolore, aut omnis!
+        </div>
+    </body>
+</html>

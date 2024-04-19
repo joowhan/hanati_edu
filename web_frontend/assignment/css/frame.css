@@ -1,0 +1,170 @@
+* {
+    border: solid 1px;
+}
+h1 {
+    font-size: 80px;
+    font-family: "S-CoreDream-6Bold";
+    font-weight: 900;
+}
+
+@font-face {
+    font-family: "S-CoreDream-6Bold";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-6Bold.woff")
+        format("woff");
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "S-CoreDream-3Light";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff")
+        format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+section {
+    width: 1920px;
+    height: 1080px;
+    background-color: #84b7a6;
+    position: relative;
+}
+
+.top-design {
+    background-color: #c9cc88;
+    width: 100%;
+    height: 8%;
+    position: absolute;
+}
+.bottom-design {
+    background-color: #6e6876;
+    height: 8%;
+    width: 100%;
+    position: absolute;
+    bottom: 0%;
+}
+.subtitle {
+    position: absolute;
+    width: 100px;
+    height: 50px;
+    left: 50%;
+    top: 20%;
+    text-align: center;
+    line-height: 50px;
+    font-family: S-CoreDream-3Light;
+    font-size: 20px;
+    transform: translate(-50%, -50%);
+}
+#title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+#title-comment {
+    position: absolute;
+    left: 50%;
+    top: 70%;
+    text-align: center;
+    font-family: S-CoreDream-3Light;
+    text-decoration: underline;
+    font-size: 30px;
+    transform: translate(-50%, -50%);
+}
+
+.circle-group {
+    right: 50%;
+}
+.circle-group .circle {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 100%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.circle-group .circle:nth-child(1) {
+    left: 500px;
+    background-color: #6e6876;
+}
+.circle-group .circle:nth-child(2) {
+    left: 800px;
+    background-color: #c9cc88;
+}
+.circle-group .circle:nth-child(3) {
+    left: 1100px;
+    background-color: #6e6876;
+}
+.circle-group .circle:nth-child(4) {
+    left: 1400px;
+    background-color: #c9cc88;
+}
+
+.content-title {
+    text-align: center;
+    font-size: 30px;
+}
+.content-text {
+    text-align: center;
+    font-size: 18px;
+}
+
+/* 페이지 표시 작은 원*/
+.small-circle-group {
+    position: absolute;
+    left: 50%;
+    bottom: 5%;
+    transform: translate(-50%, -5%);
+    width: 300px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.small-circle-group .circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    border: 3px solid white;
+    /* position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    top: 90%;
+    transform: translate(-50%, -50%); */
+}
+.circle-line {
+    border-top: 3px solid #444444;
+    /* margin: 30px auto; */
+    position: relative;
+    width: 1000px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.circle-line:after {
+    content: "●";
+    position: absolute;
+    top: -13px;
+    left: calc(0% - 8px);
+}
+.circle-line:before {
+    content: "●";
+    position: absolute;
+    top: -13px;
+    right: calc(0% - 8px);
+}
+
+.background-small-circle {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 100%;
+    top: 50%;
+    left: 24%;
+    transform: translate(-50%, -50%);
+}
+.background-big-circle {
+}
