@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>lotto</title>
+        <style>
+            #buttonId {
+                margin-left: 15px;
+                color: aquamarine;
+                background: #000;
+                font-size: 1.5rem;
+            }
+            p {
+                font-size: 2rem;
+                color: blueviolet;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>lotto</h1>
+        <div>
+            <h2>1. 로또 번호 입력(숫자를 띄어써서 입력)</h2>
+            <p></p>
+            <div>
+                <input type="text" name="숫자1" id="num1" />
+            </div>
+            <br />
+            <div>
+                <input id="buttonId" type="button" value="click Me" />
+            </div>
+            <h2>이번주 로또 번호</h2>
+            <p id="result1"></p>
+
+            <h2>결과</h2>
+            <p id="result2"></p>
+        </div>
+
+        <script src="./js/student.js"></script>
+        <script src="./js/app.js" defer></script>
+    </body>
+</html>

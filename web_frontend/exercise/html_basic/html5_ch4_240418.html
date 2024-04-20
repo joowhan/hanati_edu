@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            fieldset {
+                display: block;
+                margin-left: 2px;
+                margin-right: 2px;
+                padding-top: 0.35em;
+                padding-bottom: 0.625em;
+                padding-left: 0.75em;
+                padding-right: 0.75em;
+                border: 2px groove (internal value);
+            }
+        </style>
+    </head>
+    <body>
+        <form action="">
+            <label for="username">아이디: </label>
+            <input type="text" id="username" name="username" />
+            <label for="password">비밀번호: </label>
+            <input type="password" id="password" name="password" />
+            <button type="submit">로그인</button>
+        </form>
+
+        <div>
+            <form>
+                <input type="text" name="text" id="text" /> <br />
+                <h5>버튼</h5>
+                <input type="button" value="button" /> <br />
+                <h5>checkbox</h5>
+                <input type="checkbox" name="checkbox" id="cb" />
+                <h5>color</h5>
+                <input type="color" name="" id="" />
+                <h5>file</h5>
+                <input type="file" name="file" id="file" />
+                <h5>hidden</h5>
+                <input type="hidden" name="hidden" id="hidden" />
+                <h5>image</h5>
+                <input type="image" src="./img/docker.png" alt="" />
+                <h5>radio</h5>
+                <label>선택1</label>
+                <input type="radio" name="radio" id="radio" value="1" />
+                <label>선택2</label>
+                <input type="radio" name="radio" id="radio" />
+                <h5>reset</h5>
+                <input type="reset" />
+                <h5>submit</h5>
+                <input type="submit" value="submit" />
+                <h5>textarea</h5>
+                <textarea name="textarea" id="" cols="30" rows="10"></textarea>
+                <h5>optgroup</h5>
+                <select name="" id="">
+                    <optgroup>
+                        <option value="">1</option>
+                    </optgroup>
+                </select>
+                <h5>filedset legend</h5>
+                <fieldset>
+                    <legend>로그인</legend>
+                    <label for="username">아이디: </label>
+                    <input type="text" id="username" name="username" />
+                    <label for="password">비밀번호: </label>
+                    <input type="password" id="password" name="password" />
+                    <button type="submit">로그인</button>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>

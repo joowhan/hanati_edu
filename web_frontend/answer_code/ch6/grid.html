@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* .container {
+            display: grid;
+            width: 300px;
+            height: 300px;
+            grid-template-columns: 100px 100px 100px;
+            grid-template-rows: 200px 100px;
+        } */
+        /* .container {
+            display: grid;
+            width: 300px;
+            height: 300px;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 2fr 1fr;
+        } */
+        /*repeat 적용*/
+        .container {
+            display: grid;
+            width: 300px;
+            height: 300px;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: 2fr 1fr;
+            gap: 10px 20px; 
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+    </div>
+</body>
+
+</html>

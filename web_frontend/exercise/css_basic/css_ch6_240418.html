@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            h1:hover {
+                color: blue;
+            }
+            h1:active {
+                color: red;
+            }
+            li:first-child {
+                font-weight: bold;
+            }
+            p::first-letter {
+                font-size: 200%;
+            }
+            p::first-line {
+                color: red;
+            }
+            #parent-id,
+            #child-id {
+                color: green;
+            }
+            #parent-id div.child-clss {
+                color: blue;
+            }
+            #tree-img {
+                z-index: 100;
+            }
+            #sentance {
+                top: 50%;
+
+                right: 60%;
+                position: absolute;
+                color: white;
+            }
+            .backimg {
+                position: relative;
+            }
+            .wrap {
+                background-color: gainsboro;
+                width: 500px;
+                height: 500px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                align-items: flex-start;
+            }
+
+            .wrap > div {
+                color: white;
+                line-height: 100px;
+                text-align: center;
+                font-size: 40px;
+                width: 100px;
+                height: 100px;
+            }
+
+            .blue {
+                background-color: #4967d8;
+            }
+            .red {
+                background-color: #bc0d7c;
+            }
+            .green {
+                background-color: #04ae3d;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>바뀌나요?</h1>
+        <div id="parent-id">
+            <div id="child-id" class="child-clss">child</div>
+        </div>
+
+        <!-- <div class="backimg">
+            <img src="./img/tree.jpg" alt="tree img" id="tree-img" />
+            <div id="sentance">CSS는 어렵다...</div>
+        </div> -->
+        <br />
+
+        <div class="wrap">
+            <div class="blue">A</div>
+            <div class="red">B</div>
+            <div class="green">C</div>
+        </div>
+    </body>
+</html>
