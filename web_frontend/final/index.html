@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Data Coffee</title>
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <!-- header -->
+        <header>
+            <!-- navigation bar -->
+            <nav class="navibar">
+                <!-- logo image -->
+                <div class="nav_logo">
+                    <a href="index.html"
+                        ><img
+                            src="https://prof-jwchi.github.io/koporepo/img/coffee.png"
+                            alt="logo img"
+                            class="logo_img"
+                    /></a>
+                    <a href="index.html">Data Coffee</a>
+                </div>
+                <!-- navigation menu -->
+                <ul class="nav_menu">
+                    <li>
+                        <a href="#" class="menu">추천 메뉴</a>
+                        <!-- dropdown menu list -->
+                        <ul class="drop_menu"></ul>
+                    </li>
+                    <li>
+                        <a href="#" class="menu">마실 것</a>
+                        <!-- dropdown menu list -->
+                        <ul class="drop_menu"></ul>
+                    </li>
+                    <li>
+                        <a href="#" class="menu">먹을 것</a>
+                        <!-- dropdown menu list -->
+                        <ul class="drop_menu"></ul>
+                    </li>
+                    <!-- order list button -->
+                    <li><a href="#" class="order_read">주문 하기</a></li>
+                </ul>
+                <!-- uder 760px, show hamburger image -->
+                <a href="#"
+                    ><img
+                        src="./img/hamburgermenu.png"
+                        alt="under 760px hamburger menu"
+                        class="menu_img"
+                /></a>
+            </nav>
+        </header>
+        <div style="width: 300px; height: 300px"></div>
+        <!-- order list -->
+        <div><h2>주문 내역</h2></div>
+        <div class="order_list hide"></div>
+        <!-- order button -->
+        <div>
+            <button class="order hide">주문하기</button>
+        </div>
+        <script src="js/script.js"></script>
+    </body>
+</html>
