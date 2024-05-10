@@ -31,10 +31,6 @@ navbar_togleBtn.addEventListener("click", (ev) => {
     navbar_menu.classList.toggle("active");
 });
 
-// dropMenuList.addEventListener("blur", (ev) => {
-//     dropMenuList.style.display = "none";
-// });
-
 drop_items.forEach((drop_item) => {
     drop_item.addEventListener("click", (ev) => {
         const newItem = { [randomKey()]: ev.target.textContent };
@@ -81,6 +77,7 @@ order_view.addEventListener("click", (ev) => {
         });
     }
 });
+
 document.querySelector(".reset").addEventListener("click", (ev) => {
     sessionStorage.clear();
     alert("주문 완료!");

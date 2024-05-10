@@ -10,7 +10,12 @@
   width: 100%;
 }
 a {
+<<<<<<< Updated upstream
   text-decoration-line: none;
+=======
+    text-decoration-line: none;
+    z-index: 99;
+>>>>>>> Stashed changes
 }
 li {
   list-style: none;
@@ -115,4 +120,7 @@ li {
     right: 20%;
     width: 100px;
   }
+}
+@media screen and (max-width:760px){
+    
 }
