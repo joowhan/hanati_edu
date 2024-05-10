@@ -26,10 +26,18 @@
   <listener>
     <listener-class>kr.co.jsp.ex1_servlet.ContextListenerEx</listener-class>
   </listener>
-  
   <error-page>
-  	<error-code>404</error-code>
-  	<location>/exception404.jsp</location>
+    <error-code>404</error-code>
+    <location>/exception404.jsp</location>
   </error-page>
-  
+  <servlet>
+    <description></description>
+    <display-name>JoinOk</display-name>
+    <servlet-name>JoinOk</servlet-name>
+    <servlet-class>servlet.JoinOk</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JoinOk</servlet-name>
+    <url-pattern>/JoinOk</url-pattern>
+  </servlet-mapping>
 </web-app>
