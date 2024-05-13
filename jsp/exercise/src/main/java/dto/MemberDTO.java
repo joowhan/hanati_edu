@@ -2,72 +2,81 @@ package dto;
 
 public class MemberDTO {
 
-	private String name;
-	private String id;
-	private String password;
-	private String phone;
-	private String email;
-	private String status;
-	private String authority;
+	private String noUser;
+	private String idUser;
+	private String nmUser;
+	private String nmPaswd;
+	private String noMobile;
+	private String nmEmail;
+	private String stStatus;
+	private String cdUserType;
 
 	public MemberDTO() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public String getName() {
-		return name;
+	public String getNoUser() {
+		return noUser;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setNoUser(String noUser) {
+		this.noUser = noUser;
 	}
 
-	public String getId() {
-		return id;
+	public String getIdUser() {
+		return idUser;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setIdUser(String idUser) {
+		this.idUser = idUser;
 	}
 
-	public String getPassword() {
-		return password;
+	public String getNmUser() {
+		return nmUser;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public void setNmUser(String nmUser) {
+		this.nmUser = nmUser;
 	}
 
-	public String getPhone() {
-		return phone;
+	public String getNmPaswd() {
+		return nmPaswd;
 	}
 
-	public void setPhone(String phone) {
-		this.phone = phone;
+	public void setNmPaswd(String nmPaswd) {
+		this.nmPaswd = nmPaswd;
 	}
 
-	public String getEmail() {
-		return email;
+	public String getNoMobile() {
+		return noMobile;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setNoMobile(String noMobile) {
+		this.noMobile = noMobile;
 	}
 
-	public String getStatus() {
-		return status;
+	public String getNmEmail() {
+		return nmEmail;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public void setNmEmail(String nmEmail) {
+		this.nmEmail = nmEmail;
 	}
 
-	public String getAuthority() {
-		return authority;
+	public String getStStatus() {
+		return stStatus;
 	}
 
-	public void setAuthority(String authority) {
-		this.authority = authority;
+	public void setStStatus(String stStatus) {
+		this.stStatus = stStatus;
+	}
+
+	public String getCdUserType() {
+		return cdUserType;
+	}
+
+	public void setCdUserType(String cdUserType) {
+		this.cdUserType = cdUserType;
 	}
 
 }
