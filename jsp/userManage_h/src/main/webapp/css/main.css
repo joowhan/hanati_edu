@@ -1,0 +1,25 @@
+@charset "UTF-8";
+body {
+    background-color: #F3F4F9;
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.menu_button {
+    padding: 16px 75px;
+    background-color: #ED4B5E;
+    border-radius: 10px;
+    color: white;
+   	border:none;
+}
+
+.menu_button:hover {
+    background-color: #ff6678;
+}
+
+button[type="button"] {
+    padding: 16px 0 16px 35px;
+    background-color: transparent;
+    color: #ED4B5E;
+}

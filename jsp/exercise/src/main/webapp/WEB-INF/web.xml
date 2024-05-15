@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd" id="WebApp_ID" version="5.0">
+  <display-name>exercise</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+  </welcome-file-list>
+  <context-param>
+    <param-name>dbId</param-name>
+    <param-value>abcde</param-value>
+  </context-param>
+  <servlet>
+    <description></description>
+    <display-name>Helloworld</display-name>
+    <servlet-name>Helloworld</servlet-name>
+    <servlet-class>kr.co.jsp.ex.Helloworld</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Helloworld</servlet-name>
+    <url-pattern>/Helloworld</url-pattern>
+  </servlet-mapping>
+  <listener>
+    <listener-class>kr.co.jsp.ex1_servlet.ContextListenerEx</listener-class>
+  </listener>
+  <error-page>
+    <error-code>404</error-code>
+    <location>/exception404.jsp</location>
+  </error-page>
+  <servlet>
+    <description></description>
+    <display-name>JoinOk</display-name>
+    <servlet-name>JoinOk</servlet-name>
+    <servlet-class>servlet.JoinOk</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JoinOk</servlet-name>
+    <url-pattern>/JoinOk</url-pattern>
+  </servlet-mapping>
+</web-app>

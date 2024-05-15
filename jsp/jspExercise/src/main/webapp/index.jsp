@@ -11,7 +11,7 @@
 <%--<form action="hello-servlet" method="get">--%>
 <%--    <input type="submit" value="post">--%>
 <%--</form>--%>
-<a href=hello.html>wow</a>
+<a href=db_test.jsp>wow</a>
 <a href="WriteBoard.jsp">111</a>
 </body>
 </html>
