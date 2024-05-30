@@ -1,0 +1,20 @@
+@charset "UTF-8";
+body {
+    background-color: #F3F4F9;
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+table {
+     border-collapse: collapse;
+     width: 100%;
+     margin-bottom:30px;
+}
+
+th, td {
+     padding: 10px;
+     border-bottom: 1px solid #CD5C5C;
+}
+
+tr:hover { background-color: #F5F5F5; }
