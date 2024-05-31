@@ -1,0 +1,26 @@
+*******************************************************************************************************************
+Class: calc_bonus.statement.ExceptionTest
+Timestamp: 2024-05-31 16:47:17
+Exception Type: java.sql.SQLSyntaxErrorException
+Message: ORA-00942: 테이블 또는 뷰가 존재하지 않습니다
+
+https://docs.oracle.com/error-help/db/ora-00942/
+Stack Trace:
+	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:709)
+	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:609)
+	at oracle.jdbc.driver.T4C8Oall.processError(T4C8Oall.java:1290)
+	at oracle.jdbc.driver.T4CTTIfun.receive(T4CTTIfun.java:1101)
+	at oracle.jdbc.driver.T4CTTIfun.doRPC(T4CTTIfun.java:409)
+	at oracle.jdbc.driver.T4C8Oall.doOALL(T4C8Oall.java:483)
+	at oracle.jdbc.driver.T4CPreparedStatement.doOall8(T4CPreparedStatement.java:261)
+	at oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe(T4CPreparedStatement.java:1106)
+	at oracle.jdbc.driver.OracleStatement.prepareDefineBufferAndExecute(OracleStatement.java:1286)
+	at oracle.jdbc.driver.OracleStatement.executeMaybeDescribe(OracleStatement.java:1211)
+	at oracle.jdbc.driver.OracleStatement.executeSQLSelect(OracleStatement.java:1579)
+	at oracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1429)
+	at oracle.jdbc.driver.OraclePreparedStatement.executeInternal(OraclePreparedStatement.java:3930)
+	at oracle.jdbc.driver.OraclePreparedStatement.executeQuery(OraclePreparedStatement.java:4034)
+	at oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery(OraclePreparedStatementWrapper.java:1099)
+	at calc_bonus.statement.ExceptionTest.main(ExceptionTest.java:20)
+Thread: main
+*******************************************************************************************************************

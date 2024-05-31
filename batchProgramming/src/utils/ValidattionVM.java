@@ -32,5 +32,22 @@ public class ValidattionVM {
         String sql = "SELECT COUPON, COUNT(*) AS NUM " +
                 "FROM BONUS_COUPON " +
                 "GROUP BY COUPON";
+        String coupon ="";
+        int insertedRows = 0;
+        try {
+            connection = JdbcConnectionVM.dbConnected();
+            pstmt  = connection.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            while(rs.next()){
+                coupon = rs.getString(1);
+                insertedRows = rs.getInt(2);
+                System.out.println(coupon +" : "+insertedRows);
+            }
+
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

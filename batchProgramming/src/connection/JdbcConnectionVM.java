@@ -18,7 +18,7 @@ public class JdbcConnectionVM {
         Connection connection = DriverManager.getConnection(KOPO_URL, USER_ID, USER_PWD);
         // 자동 commit off
         connection.setAutoCommit(false);
-        System.out.println("데이터베이스 연결 성공");
+//        System.out.println("데이터베이스 연결 성공");
         return connection;
     }
     public static void dbUnconnected(Connection connection){

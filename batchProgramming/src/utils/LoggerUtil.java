@@ -7,8 +7,8 @@ import java.util.logging.SimpleFormatter;
 
 public class LoggerUtil {
 
-    public static Logger getLogger(Class<?> clazz) {
-        Logger logger = Logger.getLogger(clazz.getName());
+    public static Logger getLogger(Class<?> className) {
+        Logger logger = Logger.getLogger(className.getName());
         try {
             // 로그 파일 핸들러 설정
             FileHandler fileHandler = new FileHandler("calc_bonus.log", true);
