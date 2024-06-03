@@ -26,4 +26,15 @@
     <!--
     <Manager pathname="SESSIONS.ser" />
     -->
+    <Resource
+	name="jdbc/Oracle11g"
+	auth="Container"
+	driverClassName="oracle.jdbc.driver.OracleDriver"
+	url="jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-seoul-1.oraclecloud.com))(connect_data=(service_name=g56e711c2a2b221_dinkdb_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))"
+	username="DA2405"
+	password="Data2405"
+	type="javax.sql.DataSource"
+	maxActive="1"
+	maxIdle="1"
+	maxWait="5000"/>
 </Context>
